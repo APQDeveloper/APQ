@@ -1,8 +1,11 @@
 <resources>
-    <string name="app_name">APQ模拟器</string>
+    <string name="app_name">APQ Simulator</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="user_permissions_requested">You need to grant the application some permissions.</string>
+    <string name="base_ok">OK</string>
 </resources>
