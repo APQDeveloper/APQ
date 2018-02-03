@@ -5,4 +5,22 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="title_activity_bug">应用崩溃</string>
+
+    <string name="base_prompt">提示</string>
+    <string name="base_enter">确定</string>
+    <string name="base_back">返回</string>
+    <string name="base_yes">是</string>
+    <string name="base_no">否</string>
+
+    <string name="log_message_error">错误信息:</string>
+    <string name="log_message_nulcrash">APQ模拟器崩溃:</string>
+    <string name="log_message_phone_brand">手机品牌:</string>
+    <string name="log_message_phone_model">手机型号:</string>
+    <string name="log_message_phone_product">名称:</string>
+    <string name="log_message_phone_ver">安卓版本:</string>
+    <string name="log_message_phone_appver">软件版本:</string>
+    <string name="log_message_send">发送错误信息</string>
+
 </resources>
