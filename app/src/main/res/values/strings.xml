@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">APQ模拟器</string>
+    <string name="app_name">APQ 模拟器</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -23,4 +23,6 @@
     <string name="log_message_phone_appver">软件版本:</string>
     <string name="log_message_send">发送错误信息</string>
 
+    <string name="user_permissions_requested">你需要给予应用权限</string>
+    <string name="base_ok">好的</string>
 </resources>

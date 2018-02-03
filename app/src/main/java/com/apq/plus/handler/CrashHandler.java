@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.apq.plus.R;
-import com.apq.plus.activity.BugActivity;
+import com.apq.plus.Activity.BugActivity;
 import com.apq.plus.app.APPManager;
 import com.apq.plus.util.ExtrasUtil;
 

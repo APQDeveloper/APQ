@@ -1,4 +1,4 @@
-package com.apq.plus.activity;
+package com.apq.plus.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,8 +13,8 @@ import android.view.View;
 
 import com.apq.plus.R;
 import com.apq.plus.app.APPManager;
-import com.apq.plus.base.AActivity;
 import com.apq.plus.base.AAppBarStateChangeListener;
+import com.apq.plus.base.BaseActivity;
 import com.apq.plus.util.ExceptionUtil;
 import com.apq.plus.util.ExtrasUtil;
 
@@ -24,7 +24,7 @@ import com.apq.plus.util.ExtrasUtil;
  * @author xhh
  */
 
-public class BugActivity extends AActivity implements View.OnClickListener {
+public class BugActivity extends BaseActivity implements View.OnClickListener {
 
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
     private AppBarLayout mAppBarLayout;
