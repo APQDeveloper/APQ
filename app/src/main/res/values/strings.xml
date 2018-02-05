@@ -8,4 +8,21 @@
 
     <string name="user_permissions_requested">You need to grant the application some permissions.</string>
     <string name="base_ok">OK</string>
+    <string name="user_folder_to_archive">The APQ files will be archived to…</string>
+    <string name="base_choose">Choose</string>
+    <string name="base_folder">Folder</string>
+    <string name="base_file">File</string>
+    <string name="base_upper_level">Upper Level</string>
+    <string name="user_unable_to_get_upper">Unable to Get to Upper Level</string>
+    <string name="progress_msg_extract">Extracting APQ Files…</string>
+    <string name="progress_msg_deploy">Deploying Files…%s%%</string>
+    <string name="progress_msg_done">Done</string>
+    <string name="progress_msg_clean">Cleaning…</string>
+    <string name="progress_msg_proofread">Proofreading…</string>
+    <string name="base_error">Sorry! Something went wrong: %s</string>
+    <string name="user_close">Close</string>
+    <string name="user_ignore">Ignore</string>
+    <string name="user_copy">Copy</string>
+    <string name="base_copied">Copied</string>
+    <string name="base_proofread_failed">Failed to proofread the APQ files!</string>
 </resources>

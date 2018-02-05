@@ -14,4 +14,24 @@
         android:layout_gravity="center"
         android:id="@+id/icon"/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:id="@+id/loading_layout">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:text="Progress..."
+            android:id="@+id/progress_msg"/>
+    </LinearLayout>
+
 </android.support.design.widget.CoordinatorLayout>

@@ -16,6 +16,9 @@ object ActivityCollector {
     }
 
     fun finishAll(){
-        activities.forEach { it.finish() }
+        activities.forEach {
+            if (!it.isFinishing)
+                it.finish()
+        }
     }
 }
