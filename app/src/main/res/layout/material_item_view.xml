@@ -20,11 +20,12 @@
             app:civ_circle_background_color="@color/colorPrimary"
             android:src="@color/transparent"/>
         <android.support.v7.widget.AppCompatImageView
-            android:layout_width="31dp"
-            android:layout_height="31dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:id="@+id/title_shape_img"/>
+            android:id="@+id/title_shape_img"
+            app:srcCompat="@drawable/ic_check"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,6 +33,7 @@
             android:textSize="20sp"
             android:layout_gravity="center"
             android:gravity="center"
+            android:visibility="gone"
             android:text="T"
             android:id="@+id/title_text"/>
     </FrameLayout>
