@@ -4,7 +4,8 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp">
+    android:padding="4dp"
+    android:background="?attr/selectableItemBackground">
 
     <FrameLayout
         android:layout_width="wrap_content"
@@ -12,40 +13,49 @@
         android:layout_marginEnd="4dp"
         android:layout_gravity="center_vertical">
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:id="@+id/title_shape"
-            app:civ_circle_background_color="@color/colorPrimary"/>
+            android:layout_gravity="center"
+            app:civ_circle_background_color="@color/colorPrimary"
+            android:src="@color/transparent"/>
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="31dp"
+            android:layout_height="31dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:id="@+id/title_shape_img"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:layout_gravity="center"
             android:gravity="center"
             android:text="T"
             android:id="@+id/title_text"/>
     </FrameLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="18sp"
             android:textColor="@android:color/black"
             android:text="Title"
-            android:id="@+id/title"/>
+            android:id="@+id/title" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:text="Subtitle"
-            android:id="@+id/subtitle"/>
-    </LinearLayout>
+            android:id="@+id/subtitle"
+            android:layout_below="@id/title"/>
+    </RelativeLayout>
 
 
 </LinearLayout>

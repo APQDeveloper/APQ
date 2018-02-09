@@ -4,31 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.apq.plus.Activity.MainActivity">
-
-    <android.support.design.widget.AppBarLayout
+    tools:context="com.apq.plus.Activity.FileChooserActivity">
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        android:layout_height="match_parent"
+        android:id="@+id/swipe_refresh_layout">
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"/>
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/fab"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/plus"
-        app:fabSize="normal"/>
-
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_check"/>
 </android.support.design.widget.CoordinatorLayout>

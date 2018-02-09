@@ -1,6 +1,6 @@
 package com.apq.plus.Base
 
-import Utils.ActivityCollector
+import com.apq.plus.Utils.ActivityCollector
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.PersistableBundle

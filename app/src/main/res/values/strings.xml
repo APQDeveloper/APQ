@@ -8,7 +8,6 @@
 
     <string name="user_permissions_requested">You need to grant the application some permissions.</string>
     <string name="base_ok">OK</string>
-    <string name="user_folder_to_archive">The APQ files will be archived to…</string>
     <string name="base_choose">Choose</string>
     <string name="base_folder">Folder</string>
     <string name="base_file">File</string>
@@ -25,4 +24,27 @@
     <string name="user_copy">Copy</string>
     <string name="base_copied">Copied</string>
     <string name="base_proofread_failed">Failed to proofread the APQ files!</string>
+    <string name="base_calcuating">Calcuating…</string>
+    <string name="base_units_mb">%sMB</string>
+    <string name="base_units_kb">%sKB</string>
+    <string name="base_units_gb">%sGB</string>
+    <string name="activity_vm_editor">Virtual Machine Editor</string>
+    <string name="base_name">name</string>
+    <string name="base_description">description</string>
+    <string name="base_disk">Disk</string>
+    <string name="base_basic_info">Basic Info</string>
+    <string name="user_add_raw">Add</string>
+    <string name="base_hard_disk">Hard Disk %s</string>
+    <string name="base_floppy_disk">Floppy Disk %s</string>
+    <string name="base_cd_rom">CD-ROM %s</string>
+    <string name="base_raw_hard_disk">Hard Disk</string>
+    <string name="base_raw_floppy_disk">Floppy Disk</string>
+    <string name="base_raw_cd_rom">CD-ROM</string>
+    <string name="base_please_wait">Please wait</string>
+    <string name="user_add">Add %s</string>
+    <string name="base_use_as">Use As</string>
+    <string name="base_edit">Edit</string>
+    <string name="base_cancel">Cancel</string>
+    <string name="user_delete">Delete</string>
+    <string name="user_msg_duplicate">Could not add duplicate items!</string>
 </resources>

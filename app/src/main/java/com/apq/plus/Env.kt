@@ -6,9 +6,16 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.os.Environment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.Toast
+import com.apq.plus.Adapter.FileAdapter
 import java.io.File
 
 /**
@@ -45,5 +52,10 @@ object Env {
         })
 
         dialog.show()
+    }
+
+    fun closeSoftInput(context: Context?){
+        if (context != null)
+            (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.hideSoftInputFromWindow((context as Activity).window.peekDecorView().windowToken,0)
     }
 }

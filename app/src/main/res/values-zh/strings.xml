@@ -6,7 +6,6 @@
     <string name="action_settings">设置</string>
     <string name="user_permissions_requested">你需要给予应用权限</string>
     <string name="base_ok">好的</string>
-    <string name="user_folder_to_archive">APQ文件将会被保存在…</string>
     <string name="base_choose">选择</string>
     <string name="base_folder">文件夹</string>
     <string name="base_file">文件</string>
@@ -23,4 +22,27 @@
     <string name="user_copy">复制</string>
     <string name="base_copied">已复制</string>
     <string name="base_proofread_failed">检查APQ文件失败!</string>
+    <string name="base_calcuating">计算中…</string>
+    <string name="base_units_mb">%s兆字节</string>
+    <string name="base_units_kb">%s千字节</string>
+    <string name="base_units_gb">%s吉字节</string>
+    <string name="activity_vm_editor">虚拟机编辑器</string>
+    <string name="base_name">名称</string>
+    <string name="base_description">简介</string>
+    <string name="base_disk">磁盘</string>
+    <string name="base_basic_info">基础信息</string>
+    <string name="user_add_raw">添加</string>
+    <string name="base_hard_disk">硬盘 %s</string>
+    <string name="base_floppy_disk">软盘 %s</string>
+    <string name="base_cd_rom">光盘 %s</string>
+    <string name="base_raw_hard_disk">硬盘</string>
+    <string name="base_raw_floppy_disk">软盘</string>
+    <string name="base_raw_cd_rom">光盘</string>
+    <string name="base_please_wait">请稍后</string>
+    <string name="user_add">添加 %s</string>
+    <string name="base_use_as">用作</string>
+    <string name="base_edit">编辑</string>
+    <string name="base_cancel">取消</string>
+    <string name="user_delete">删除</string>
+    <string name="user_msg_duplicate">无法添加重复项目!</string>
 </resources>

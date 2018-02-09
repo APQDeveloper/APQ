@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/hard_disk"
+        android:title="@string/base_raw_hard_disk" />
+    <item
+        android:id="@+id/floppy_disk"
+        android:title="@string/base_raw_floppy_disk"/>
+    <item
+        android:id="@+id/cd"
+        android:title="@string/base_raw_cd_rom"/>
+</menu>
