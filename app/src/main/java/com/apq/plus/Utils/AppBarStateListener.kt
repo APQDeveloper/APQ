@@ -7,7 +7,7 @@ import android.support.design.widget.AppBarLayout
 /**
  * Created by zhufu on 2/5/18.
  */
-abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
+abstract class AppBarStateListener : AppBarLayout.OnOffsetChangedListener {
 
     private var mCurrentState = State.IDLE
 

@@ -20,7 +20,7 @@ import android.widget.*
 import com.apq.plus.Adapter.DiskAdapter
 import com.apq.plus.Base.BaseActivity
 import com.apq.plus.R
-import com.apq.plus.Utils.AppBarStateChangeListener
+import com.apq.plus.Utils.AppBarStateListener
 import com.apq.plus.Utils.DiskAdapterDecoration
 import com.apq.plus.Utils.VMProfile
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator
@@ -48,15 +48,15 @@ class VMEditActivity : BaseActivity() {
         val appBarLayout = findViewById<AppBarLayout>(R.id.app_bar)
         diskRecyclerView = findViewById(R.id.disk_recycler_view)
 
-        appBarLayout.addOnOffsetChangedListener(object : AppBarStateChangeListener(){
+        appBarLayout.addOnOffsetChangedListener(object : AppBarStateListener(){
             override fun onStateChanged(appBarLayout: AppBarLayout, state: State) {
                 when(state){
-                    AppBarStateChangeListener.State.EXPANDED -> {
+                    AppBarStateListener.State.EXPANDED -> {
                         //展开
                         supportActionBar!!.setTitle(R.string.base_basic_info)
                         Log.d("AppBar","Expanded")
                     }
-                    AppBarStateChangeListener.State.COLLAPSED -> {
+                    AppBarStateListener.State.COLLAPSED -> {
                         //折叠
                         supportActionBar!!.setTitle(R.string.activity_vm_editor)
                         Log.d("AppBar","Collapsed")
@@ -120,9 +120,10 @@ class VMEditActivity : BaseActivity() {
             fileInput.text = Editable.Factory.getInstance().newEditable(content.diskFile!!.path)
         }
         if (type != VMProfile.DiskHolder.CD) {
-            val suffixes = ArrayList<Char>()
-            suffixes += 'a'..'z'
-            paramSuffixSpinner.adapter = ArrayAdapter<Char>(context, android.R.layout.simple_spinner_item, suffixes)
+            val suffixes: CharRange =
+                    if (type == VMProfile.DiskHolder.HardDisk) 'a'..'d'
+                    else 'a'..'b'
+            paramSuffixSpinner.adapter = ArrayAdapter<Char>(context, android.R.layout.simple_spinner_item, suffixes.toList())
             if (content.isEmpty) {
                 //选择下一个字母
                 val nextLetter = diskAdapter.disk.getNextUseAs(type!!)

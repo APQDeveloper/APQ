@@ -24,8 +24,7 @@
             android:layout_height="26dp"
             android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:id="@+id/title_shape_img"
-            app:srcCompat="@drawable/ic_check"/>
+            android:id="@+id/title_shape_img"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

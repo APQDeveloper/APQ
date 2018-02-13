@@ -9,13 +9,16 @@ import kotlin.collections.ArrayList
  * Created by zhufu on 2/5/18.
  * 虚拟机配置文件对象
  */
-class VMProfile(var name: String, var description: String, var icon: Bitmap?, var disks: DiskHolder?, var bootFrom: BootFrom,var memory: String, var net: String, var sound: String,var vga: String,var useVnc: Boolean){
+class VMProfile(var name: String, var description: String, var icon: Bitmap? = null, var disks: DiskHolder?, var bootFrom: BootFrom,var memory: String, var extraHardware: HardwareHolder?, var useVnc: Boolean = true){
     class DiskHolder {
         /**
          * @param useAs 在虚拟机运行时的标签，如硬盘标为"-hdX $FILE_NAME"，中间'X'就是其值
          * @param label Companion Object中选填，用于标记磁盘类型
          */
         class Disk(var diskFile: File?, var useAs: Char?, var label: String?) {
+            /**
+             * 此参数不带'-'
+             */
             val params: String?
                 get() =
                     if (label.isNullOrEmpty())
@@ -37,6 +40,17 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap?, va
             const val FloppyDisk = "Floppy Disk"
             const val CD = "CD-Rom"
             val emptyObject = DiskHolder()
+        }
+
+        val params: String?
+        get() {
+            val stringBuilder = StringBuilder()
+            mList.forEach {
+                val param = it.params
+                if (!param.isNullOrEmpty())
+                stringBuilder.append("-$param ")
+            }
+            return stringBuilder.toString()
         }
 
         private val mList = ArrayList<Disk>()
@@ -67,37 +81,89 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap?, va
                 return null
             return when {
                 mList.size <= 0 -> 'a'
-                mList.size == 1 -> if (mList[0].label == label) nextLetter(mList[0].useAs!!) else 'a'
                 else -> {
                     val tmp = ArrayList<Char>()
                     mList.forEach {
                         if (it.label == label && it.useAs != null)
                             tmp.add(it.useAs!!)
                     }
-                    var biggest = 0.toChar()
-                    tmp.forEach { if (it>biggest) biggest = it }
-                    nextLetter(biggest)
+                    val letterList = if (label == HardDisk) 'a'..'d' else 'a' .. 'b'
+
+                    letterList.firstOrNull { !tmp.contains(it) }
                 }
             }
-        }
-
-        fun getFirst(label: String){
-
         }
 
         fun forEach(t: (Disk) -> Unit){
             mList.forEach(t)
         }
-        private fun nextLetter(thisLetter: Char): Char? = if (thisLetter<'a') 'a' else if (thisLetter.plus(1)<='z') thisLetter.plus(1) else null
     }
 
+    class HardwareHolder{
+        private val mList = ArrayList<Hardware>()
 
-    class BootFrom(val value: String){
+        class Hardware(val type: String,val model: String){
+            companion object {
+                val netModels = arrayListOf("ne2k_pci","i82551","i82557b","i82559er","rtl8139"
+                        ,"e1000","pcnet","virtio","sungem")
+                val soundModels = arrayListOf("sb16","es1370","ac97","adlib","gus","cs4231a","hda","pcspk")
+                val vgaModels = arrayListOf("cirrus","none","qxl","std","vmware","xenfb")
+            }
+            init {
+                val exception = ClassNotFoundException("Model doesn't match type.")
+                when(type){
+                    TYPE_VGA -> {
+                        if (!vgaModels.contains(model))
+                            throw exception
+                    }
+                    TYPE_NET -> {
+                        if (!netModels.contains(model))
+                            throw exception
+                    }
+                    TYPE_SOUND -> {
+                        if (!soundModels.contains(model))
+                            throw exception
+                    }
+                }
+            }
+            /**
+             * 此参数不带'-'
+             */
+            val params: String
+            get() = if (type != TYPE_CUSTOM) "$type $model" else model
+        }
+        companion object {
+            const val TYPE_NET = "net"
+            const val TYPE_SOUND = "soundhw"
+            const val TYPE_VGA = "vga"
+            const val TYPE_CUSTOM = "[custom]"
+        }
+
+        val size: Int
+        get() = mList.size
+        fun get(pos: Int) = mList[pos]
+
+        val params: String
+        get() {
+            val stringBuilder = StringBuilder()
+            mList.forEach {
+                stringBuilder.append("-${it.params} ")
+            }
+            return stringBuilder.toString()
+        }
+    }
+
+    class BootFrom(private val value: String){
         companion object {
             const val CDROM = "cdrom"
-            const val HDA = "hda"
-            const val NETWORK = "network"
+            const val HARDDISK = "hd"
+            const val FLOPPY = "floppy"
         }
+        val params: String?
+        get() = "-boot ${if (value == CDROM) 'd' else if (value == HARDDISK) 'c' else 'a'}"
+
+        val boot: String?
+        get() = if(value == CDROM || value == HARDDISK || value == FLOPPY) value else null
     }
 
     companion object {
@@ -105,7 +171,7 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap?, va
             val gson = Gson()
             return gson.fromJson(profile,VMProfile::class.java)
         }
-        val emptyObject = VMProfile("","",null, DiskHolder.emptyObject,BootFrom(""),"","","","",true)
+        val emptyObject = VMProfile("","",null, DiskHolder.emptyObject,BootFrom(""),"",null,true)
     }
 
     override fun toString(): String {
