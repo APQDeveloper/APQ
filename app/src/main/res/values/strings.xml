@@ -47,4 +47,9 @@
     <string name="base_cancel">Cancel</string>
     <string name="user_delete">Delete</string>
     <string name="user_msg_duplicate">Could not add duplicate items!</string>
+    <string name="base_boot">Boot</string>
+    <string name="base_useless_configuration">Detect useless configuration</string>
+    <string name="base_msg_ules_conf_cause">Your selection won\'t work because we couldn\'t find the device or some file doesn\'t exist.</string>
+    <string name="user_choose_to_boot">Choose an item to boot from</string>
+    <string name="base_boot_from">Boot from</string>
 </resources>

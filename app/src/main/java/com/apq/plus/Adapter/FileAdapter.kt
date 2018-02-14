@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.apq.plus.R
 import com.apq.plus.View.MaterialItemView
+import com.apq.plus.View.TextInfo
 import java.io.File
 
 /**
@@ -16,7 +17,6 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
     var mList : ArrayList<File> = sort(dest)
     var holders = ArrayList<FileHolder>()
     var selectedItem: File? = null
-    var isAnythingSelected: Boolean = false
 
     abstract fun sort(dest: File) : ArrayList<File>
 
@@ -30,11 +30,14 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
     override fun onBindViewHolder(holder: FileHolder?, position: Int) {
         holder!!.view.background = null
         holders.add(holder)
+
+        val text: TextInfo
         //返回按钮逻辑
         if (position == 0){
-            holder.view.setTitle(holder.view.context.getString(R.string.base_upper_level),'…')
-            holder.subtitle = if (dest.path == blocker) holder.view.context.getString(R.string.user_unable_to_get_upper)
-                                else dest.parent
+            val subtitle = if (dest.path == blocker) holder.view.context.getString(R.string.user_unable_to_get_upper)
+                            else dest.parent
+            text = TextInfo(holder.view.context.getString(R.string.base_upper_level),subtitle,'…')
+
             holder.view.setOnClickListener {
                 if (dest.path != blocker){
                     Thread({
@@ -53,9 +56,7 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
         //文件逻辑
         else {
             val file = mList[position-1]
-            holder.title = file.name
-            holder.subtitle = ""
-            holder.view.setShapeResource(if(file.isDirectory) R.drawable.ic_folder else R.drawable.ic_file)
+            text = TextInfo(file.name,"",if(file.isDirectory) R.drawable.ic_folder else R.drawable.ic_file)
 
             if (selectedItem != null && selectedItem!! == file)
                 select(position)
@@ -81,6 +82,8 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
                     mOnClickListener!!(it,file)
             }
         }
+
+        holder.view.set(text)
     }
 
     fun notifyDataChanged(){
@@ -118,14 +121,6 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
 
     class FileHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val view: MaterialItemView = itemView as MaterialItemView
-        var title: String = ""
-        set(value) {
-            view.setTitle(value)
-        }
-        var subtitle: String = ""
-        set(value) {
-            view.setSubtitle(value)
-        }
     }
 
     private var mOnClickListener: ((View,File?) -> Unit)? = null

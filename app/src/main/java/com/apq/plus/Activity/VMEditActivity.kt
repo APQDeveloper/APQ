@@ -8,7 +8,9 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.TextInputEditText
+import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
@@ -23,12 +25,17 @@ import com.apq.plus.R
 import com.apq.plus.Utils.AppBarStateListener
 import com.apq.plus.Utils.DiskAdapterDecoration
 import com.apq.plus.Utils.VMProfile
+import com.apq.plus.View.MaterialItemView
+import com.apq.plus.View.TextInfo
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator
 import java.io.File
 
 class VMEditActivity : BaseActivity() {
 
+    //Data & Result
     private var result = VMProfile.emptyObject
+
+    //View & Adapter
     private lateinit var diskAdapter: DiskAdapter
     private lateinit var diskRecyclerView: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,15 +87,90 @@ class VMEditActivity : BaseActivity() {
             showEditDialog(VMProfile.DiskHolder.Disk(null,null,type),this,{ disk: VMProfile.DiskHolder.Disk?, result: Result ->
                 if (result == Result.OK)
                     diskAdapter.add(disk!!)
+                this@VMEditActivity.result.disks = diskAdapter.disk
             })
         }
-        diskAdapter.setOnItemClickListener { view, pos ->
+        diskAdapter.setOnItemClickListener { _, pos ->
             showEditDialog(diskAdapter.disk.get(pos),this,{ disk: VMProfile.DiskHolder.Disk?, result: Result ->
                 when(result){
                     Result.OK -> diskAdapter.change(pos,disk!!)
                     VMEditActivity.Result.DELETE -> diskAdapter.remove(pos)
+                    else -> {}
                 }
+                this@VMEditActivity.result.disks = diskAdapter.disk
             })
+        }
+
+        //boot card
+        fun getTextInfoByBootFrom(bf: VMProfile.BootFrom): TextInfo
+                = TextInfo(getString(R.string.base_boot_from),VMProfile.DiskHolder.getString(bf.boot!!,this),VMProfile.DiskHolder.getIcon(bf.boot!!))
+        //控件
+        val bootSelection = findViewById<MaterialItemView>(R.id.boot_from)
+        bootSelection.set(getTextInfoByBootFrom(result.bootFrom))
+        val bootError = findViewById<AppCompatImageView>(R.id.boot_error_alert)
+        //控制错误提示，如果选定项不存在则弹出
+        fun updateBootError() { bootError.visibility = if(result.disks!!.has(bootSelection.tag as String)) View.INVISIBLE else View.VISIBLE }
+        diskAdapter.setOnItemChangeListener {
+            updateBootError()
+        }
+        //对话框
+        val bootErrorDialog = AlertDialog.Builder(this)
+        bootErrorDialog.setTitle(R.string.base_useless_configuration)
+        bootErrorDialog.setMessage(R.string.base_msg_ules_conf_cause)
+        bootErrorDialog.setPositiveButton(R.string.base_ok,null)
+        bootError.setOnClickListener {
+            bootErrorDialog.show()
+        }
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(R.layout.layout_boot_choose)
+        //控件
+        val cdChoice = bottomSheetDialog.findViewById<MaterialItemView>(R.id.to_choose_cd)
+        val hardDiskChoice = bottomSheetDialog.findViewById<MaterialItemView>(R.id.to_choose_hard_disk)
+        val floppyDiskChoice = bottomSheetDialog.findViewById<MaterialItemView>(R.id.to_choose_floppy_disk)
+
+        fun updateSelection(){
+            cdChoice!!.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_disk))
+            hardDiskChoice!!.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_harddisk))
+            floppyDiskChoice!!.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_floppy))
+            when(bootSelection.tag as String) {
+                VMProfile.DiskHolder.CD -> {
+                    cdChoice.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_check))
+                }
+                VMProfile.DiskHolder.HardDisk -> {
+                    hardDiskChoice.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_check))
+                }
+                VMProfile.DiskHolder.FloppyDisk -> {
+                    floppyDiskChoice.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_check))
+                }
+            }
+            //更新本地变量
+            result.bootFrom.boot = bootSelection.tag as String
+        }
+        cdChoice!!.setOnClickListener {
+            bootSelection.tag = VMProfile.DiskHolder.CD
+            updateSelection()
+            bottomSheetDialog.dismiss()
+        }
+        hardDiskChoice!!.setOnClickListener {
+            bootSelection.tag = VMProfile.DiskHolder.HardDisk
+            updateSelection()
+            bottomSheetDialog.dismiss()
+        }
+        floppyDiskChoice!!.setOnClickListener {
+            bootSelection.tag = VMProfile.DiskHolder.FloppyDisk
+            updateSelection()
+            bottomSheetDialog.dismiss()
+        }
+
+        bootSelection.setOnClickListener {
+            bottomSheetDialog.show()
+            //更新选项
+            updateSelection()
+        }
+        //取消时更新bootSelection
+        bottomSheetDialog.setOnDismissListener {
+            bootSelection.set(getTextInfoByBootFrom(result.bootFrom))
+            updateBootError()
         }
     }
 

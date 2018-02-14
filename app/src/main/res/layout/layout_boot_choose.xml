@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/card_padding">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_choose_to_boot"
+        android:textSize="16sp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="6dp"/>
+    <com.apq.plus.View.MaterialItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/to_choose_cd"
+        android:title="@string/base_raw_cd_rom"
+        app:src="@drawable/ic_disk"/>
+    <com.apq.plus.View.MaterialItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/to_choose_hard_disk"
+        android:title="@string/base_raw_hard_disk"
+        app:src="@drawable/ic_harddisk"/>
+    <com.apq.plus.View.MaterialItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/to_choose_floppy_disk"
+        android:title="@string/base_raw_floppy_disk"
+        app:src="@drawable/ic_floppy"/>
+</LinearLayout>

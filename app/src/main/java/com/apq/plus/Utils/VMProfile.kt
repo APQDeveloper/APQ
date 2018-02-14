@@ -1,6 +1,8 @@
 package com.apq.plus.Utils
 
+import android.content.Context
 import android.graphics.Bitmap
+import com.apq.plus.R
 import com.google.gson.Gson
 import java.io.File
 import kotlin.collections.ArrayList
@@ -40,6 +42,20 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap? = n
             const val FloppyDisk = "Floppy Disk"
             const val CD = "CD-Rom"
             val emptyObject = DiskHolder()
+
+            fun getString(id: String,context: Context): String = when(id){
+                VMProfile.DiskHolder.CD -> context.getString(R.string.base_raw_cd_rom)
+                VMProfile.DiskHolder.HardDisk -> context.getString(R.string.base_raw_hard_disk)
+                VMProfile.DiskHolder.FloppyDisk -> context.getString(R.string.base_raw_floppy_disk)
+                else -> "Unknown"
+            }
+
+            fun getIcon(id: String): Int = when(id){
+                VMProfile.DiskHolder.CD -> R.drawable.ic_disk
+                VMProfile.DiskHolder.HardDisk -> R.drawable.ic_harddisk
+                VMProfile.DiskHolder.FloppyDisk -> R.drawable.ic_floppy
+                else -> 0
+            }
         }
 
         val params: String?
@@ -97,6 +113,8 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap? = n
         fun forEach(t: (Disk) -> Unit){
             mList.forEach(t)
         }
+
+        fun has(label: String): Boolean = mList.any { it.label == label && it.diskFile != null && it.diskFile!!.exists() }
     }
 
     class HardwareHolder{
@@ -153,17 +171,19 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap? = n
         }
     }
 
-    class BootFrom(private val value: String){
-        companion object {
-            const val CDROM = "cdrom"
-            const val HARDDISK = "hd"
-            const val FLOPPY = "floppy"
-        }
+    /**
+     * @param value 选填DiskHolder.Companion
+     */
+    class BootFrom(private var value: String?){
         val params: String?
-        get() = "-boot ${if (value == CDROM) 'd' else if (value == HARDDISK) 'c' else 'a'}"
+        get() = if (value != null) "-boot ${if (value == DiskHolder.CD) 'd' else if (value == DiskHolder.HardDisk) 'c' else 'a'}"
+                else null
+        val isNullOrEmpty: Boolean
+        get() = params.isNullOrEmpty()
 
-        val boot: String?
-        get() = if(value == CDROM || value == HARDDISK || value == FLOPPY) value else null
+        var boot: String?
+        get() = if(value == DiskHolder.CD || value == DiskHolder.HardDisk || value == DiskHolder.FloppyDisk) value else null
+        set(value) = if(value == DiskHolder.CD || value == DiskHolder.HardDisk || value == DiskHolder.FloppyDisk) this.value = value else this.value = null
     }
 
     companion object {
@@ -171,7 +191,7 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap? = n
             val gson = Gson()
             return gson.fromJson(profile,VMProfile::class.java)
         }
-        val emptyObject = VMProfile("","",null, DiskHolder.emptyObject,BootFrom(""),"",null,true)
+        val emptyObject = VMProfile("","",null, DiskHolder.emptyObject,BootFrom(DiskHolder.CD),"64M",null,true)
     }
 
     override fun toString(): String {

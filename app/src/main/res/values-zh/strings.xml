@@ -45,4 +45,9 @@
     <string name="base_cancel">取消</string>
     <string name="user_delete">删除</string>
     <string name="user_msg_duplicate">无法添加重复项目!</string>
+    <string name="base_boot">启动</string>
+    <string name="base_useless_configuration">检测到无效配置</string>
+    <string name="base_msg_ules_conf_cause">选项无效，因为找不到相应设备或文件不存在。</string>
+    <string name="user_choose_to_boot">选择一个启动项</string>
+    <string name="base_boot_from">启动自</string>
 </resources>

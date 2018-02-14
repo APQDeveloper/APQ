@@ -13,6 +13,8 @@ import com.apq.plus.R
 import com.apq.plus.Utils.VMProfile
 import com.apq.plus.View.MaterialItemView
 
+import com.apq.plus.View.TextInfo
+
 /**
  * Created by zhufu on 2/7/18.
  * 用于VMProfileEditor中磁盘卡片的Adapter
@@ -24,23 +26,27 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
 
     override fun onBindViewHolder(holder: DiskHolder?, position: Int) {
         val view = holder!!.v
+
+        val text: TextInfo
         //单个目标逻辑
         if (position != disk.size){
             val item = disk.get(position)
-            view.setSubtitle(item.diskFile!!.name)
+            val subtitle = item.diskFile!!.name
             when(item.label){
                 VMProfile.DiskHolder.HardDisk -> {
-                    view.setTitle(view.context.getString(R.string.base_hard_disk,item.useAs!!.toUpperCase()))
-                    view.setShapeResource(R.drawable.ic_harddisk)
+                    text = TextInfo(view.context.getString(R.string.base_hard_disk,item.useAs!!.toUpperCase())
+                            ,subtitle,R.drawable.ic_harddisk)
                 }
                 VMProfile.DiskHolder.CD -> {
-                    view.setTitle(view.context.getString(R.string.base_raw_cd_rom))
-                    view.setShapeResource(R.drawable.ic_disk)
+                    text = TextInfo(view.context.getString(R.string.base_raw_cd_rom)
+                            ,subtitle,R.drawable.ic_disk)
                 }
                 VMProfile.DiskHolder.FloppyDisk -> {
-                    view.setTitle(view.context.getString(R.string.base_floppy_disk,item.useAs!!.toUpperCase()))
-                    view.setShapeResource(R.drawable.ic_floppy)
+                    text = TextInfo(view.context.getString(R.string.base_floppy_disk,item.useAs!!.toUpperCase())
+                            ,subtitle,R.drawable.ic_floppy)
+
                 }
+                else -> text = TextInfo("","")
             }
 
             if (position >= 1 && disk.get(position-1).label == item.label){
@@ -51,9 +57,8 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
             view.setOnClickListener { if (mOnItemClickListener != null) mOnItemClickListener!!(it,position) }
         }
         else {
-            view.setTitle(view.context.getString(R.string.user_add_raw))
-            view.setShapeResource(R.drawable.plus)
-            view.setSubtitle("")
+            text = TextInfo(view.context.getString(R.string.user_add_raw),"",R.drawable.plus)
+
             view.setOnClickListener {
                 Log.d("Popup Menu","Clicked")
                 val popupMenu = PopupMenu(view.context,it)
@@ -72,6 +77,7 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
                 }
             }
         }
+        view.set(text)
     }
 
     fun add(i: VMProfile.DiskHolder.Disk){
@@ -97,6 +103,8 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
             },200)
 
         }
+        if (mOnItemChangeListener!=null)
+            mOnItemChangeListener!!.invoke()
     }
     fun change(position: Int,result: VMProfile.DiskHolder.Disk){
         //备份并删除旧目标
@@ -136,6 +144,8 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
                 }
             }
         }
+        if (mOnItemChangeListener!=null)
+            mOnItemChangeListener!!.invoke()
     }
     //通知移除项目后的目标刷新
     fun remove(position: Int){
@@ -144,6 +154,9 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
         for (i in position until disk.size){
             notifyItemChanged(i)
         }
+
+        if (mOnItemChangeListener!=null)
+            mOnItemChangeListener!!.invoke()
     }
 
     var context: Context? = null
@@ -161,6 +174,11 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
     private var mOnItemClickListener: ((View,Int) -> Unit)? = null
     fun setOnItemClickListener(l: (View,Int) -> Unit){
         mOnItemClickListener = l
+    }
+
+    private var mOnItemChangeListener: (() -> Unit)? = null
+    fun setOnItemChangeListener(l: () -> Unit){
+        mOnItemChangeListener = l
     }
 
     class DiskHolder(view: View) : RecyclerView.ViewHolder(view){

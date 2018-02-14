@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.apq.plus.Activity.VMEditActivity"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:background="@color/activity_background">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -71,12 +72,23 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="@dimen/card_padding">
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/base_disk"
-                        android:textColor="@android:color/black"
-                        android:textSize="22sp"/>
+                        android:gravity="center_vertical">
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_harddisk_black"
+                            android:layout_marginEnd="@dimen/card_margin"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/base_disk"
+                            android:textColor="@android:color/black"
+                            android:textSize="22sp"/>
+                    </LinearLayout>
+
                     <android.support.v7.widget.RecyclerView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -91,8 +103,47 @@
                 android:layout_margin="@dimen/card_margin">
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_open"
+                            android:layout_marginEnd="@dimen/card_margin"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/base_boot"
+                            android:textSize="22sp"
+                            android:textColor="@android:color/black"/>
+                    </LinearLayout>
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginEnd="6dp">
+                        <com.apq.plus.View.MaterialItemView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:id="@+id/boot_from"
+                            app:src="@drawable/ic_disk"
+                            android:title="@string/base_raw_cd_rom"
+                            android:tag="CD-Rom" />
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/boot_error_alert"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="end|center_vertical"
+                            app:srcCompat="@drawable/ic_error_red"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </FrameLayout>
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
