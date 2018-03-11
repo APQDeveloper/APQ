@@ -20,12 +20,12 @@ import com.apq.plus.View.TextInfo
  * 用于VMProfileEditor中磁盘卡片的Adapter
  */
 class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAdapter.DiskHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): DiskHolder = DiskHolder(MaterialItemView(parent!!.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiskHolder = DiskHolder(MaterialItemView(parent.context))
 
     override fun getItemCount(): Int = disk.size+1
 
-    override fun onBindViewHolder(holder: DiskHolder?, position: Int) {
-        val view = holder!!.v
+    override fun onBindViewHolder(holder: DiskHolder, position: Int) {
+        val view = holder.v
 
         val text: TextInfo
         //单个目标逻辑
@@ -160,10 +160,9 @@ class DiskAdapter(val disk: VMProfile.DiskHolder) : RecyclerView.Adapter<DiskAda
     }
 
     var context: Context? = null
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        if (recyclerView != null)
-            context = recyclerView.context
+        context = recyclerView.context
     }
 
     private var addItemInterface : ((String) -> Unit)? = null

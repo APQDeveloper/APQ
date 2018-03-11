@@ -2,16 +2,34 @@ package com.apq.plus.Utils
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.apq.plus.Env
 import com.apq.plus.R
 import com.google.gson.Gson
 import java.io.File
 import kotlin.collections.ArrayList
+import com.apq.plus.Utils.VMProfile.Units.*
 
 /**
  * Created by zhufu on 2/5/18.
  * 虚拟机配置文件对象
  */
-class VMProfile(var name: String, var description: String, var icon: Bitmap? = null, var disks: DiskHolder?, var bootFrom: BootFrom,var memory: String, var extraHardware: HardwareHolder?, var useVnc: Boolean = true){
+class VMProfile(var name: String, var description: String,var cpu: CPU, var icon: Bitmap? = null, var disks: DiskHolder?, var bootFrom: BootFrom,var memory: Memory, var extraHardware: HardwareHolder?, var useVnc: Boolean = true){
+    /**
+     * 单位
+     * 仅考虑到GB
+     */
+    enum class Units{
+        B,KB,MB,GB;
+
+        fun isBigger(than: Units): Boolean =
+                when (than){
+                    B -> this!= B
+                    KB -> this!= B &&this!=KB
+                    MB -> this!= B &&this!=KB&&this!=MB
+                    GB -> false
+                }
+    }
+
     class DiskHolder {
         /**
          * @param useAs 在虚拟机运行时的标签，如硬盘标为"-hdX $FILE_NAME"，中间'X'就是其值
@@ -186,12 +204,59 @@ class VMProfile(var name: String, var description: String, var icon: Bitmap? = n
         set(value) = if(value == DiskHolder.CD || value == DiskHolder.HardDisk || value == DiskHolder.FloppyDisk) this.value = value else this.value = null
     }
 
+    /**
+     * CPU 选项
+     */
+    class CPU(val framework: String, val model: String){
+        init {
+            val exception = ClassNotFoundException("Model doesn't match framework.")
+            if (framework == FRAMEWORK_X86 || framework == FRAMEWORK_X86_64){
+                if (!x86Models.contains(model))
+                    throw exception
+            }
+            else if (framework == FRAMEWORK_ARM || framework == FRAMEWORK_AARCH64){
+                if (!armMachines.contains(model))
+                    throw exception
+            }
+            else throw NullPointerException("Framework not found.")
+        }
+
+        companion object {
+            const val FRAMEWORK_X86 = "i386"
+            const val FRAMEWORK_X86_64 = "x86_64"
+            const val FRAMEWORK_ARM = "arm"
+            const val FRAMEWORK_AARCH64 = "aarch64"
+            //Models
+            val x86Models = listOf("486","Broadwell","Broadwell-noTSX","Conroe","EPYC","Haswell","Haswell-noTSX"
+                            ,"IvyBridge","Nehalem","Opteron_G1","Opteron_G2","Opteron_G3","Opteron_G4"
+                            ,"Opteron_G5","Penryn","SandyBridge","Skylake-Client","Skylake-Server","Westmere"
+                            ,"athlon","core2duo","coreduo","kvm32","kvm64","n270","pentium","pentium2","pentium3"
+                            ,"phenom","qemu32","qemu64","base","host","max")
+            val armMachines
+                    = listOf    ("akita","ast2500-evb","borzoi","canon-a1100","cheetah","collie","connex","cubieboard"
+                    ,"emcraft-sf2","highbank","imx25-pdk","integratorcp","kzm","lm3s6965evb","lm3s811evb"
+                    ,"mainstone","midway","mps2-an385","mps2-an511","musicpal","n800","n810","netduino2"
+                    ,"none","nuri","palmetto-bmc","raspi2","realview-eb","realview-eb-mpcore","realview-pb-a8"
+                    ,"realview-pbx-a9","romulus-bmc","sabrelite","smdkc210","spitz","sx1","sx1-v1","terrier"
+                    ,"tosa","verdex","versatileab","versatilepb","express-a15","vexpress-a9","virt-2.10","virt"
+                    ,"virt-2.11","virt-2.6","virt-2.7","virt-2.8","virt-2.9","xilinx-zynq-a9","xlnx-ep108"
+                    ,"xlnx-zcu102","z2")
+        }
+    }
+    /* 内存 */
+    class Memory(var size: Double = 0.toDouble(),var unit: Units = MB){
+        fun updateUnit(unit: Units){
+            size = Env.convert(this,unit).size
+            this.unit = unit
+        }
+    }
+
     companion object {
         fun getVMProfileByJSON(profile: String): VMProfile{
             val gson = Gson()
             return gson.fromJson(profile,VMProfile::class.java)
         }
-        val emptyObject = VMProfile("","",null, DiskHolder.emptyObject,BootFrom(DiskHolder.CD),"64M",null,true)
+        val emptyObject = VMProfile("","",CPU(CPU.FRAMEWORK_X86,"base"),null, DiskHolder.emptyObject,BootFrom(DiskHolder.CD), Memory(64.toDouble(), MB),null,true)
     }
 
     override fun toString(): String {

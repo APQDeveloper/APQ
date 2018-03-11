@@ -11,11 +11,11 @@ import com.apq.plus.View.MaterialItemView
  * 额外卡片适配器
  */
 class ExtraHardwareAdapter(val holder: VMProfile.HardwareHolder) : RecyclerView.Adapter<ExtraHardwareAdapter.CardHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): CardHolder = CardHolder(MaterialItemView(parent!!.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder = CardHolder(MaterialItemView(parent!!.context))
 
     override fun getItemCount(): Int = holder.size
 
-    override fun onBindViewHolder(holder: CardHolder?, position: Int) {
+    override fun onBindViewHolder(holder: CardHolder, position: Int) {
 
     }
 

@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.LinearLayout
 import com.apq.plus.Adapter.FileAdapter
@@ -35,6 +36,7 @@ class FileChooserActivity : BaseActivity() {
         fab.visibility = View.INVISIBLE
 
         adapter = object: FileAdapter(Environment.getExternalStorageDirectory(),Environment.getExternalStorageDirectory().path){
+
             override fun sort(dest: File): ArrayList<File> {
                 //在另一线程展开
                 runOnUiThread {

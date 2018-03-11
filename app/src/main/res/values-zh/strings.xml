@@ -50,4 +50,20 @@
     <string name="base_msg_ules_conf_cause">选项无效，因为找不到相应设备或文件不存在。</string>
     <string name="user_choose_to_boot">选择一个启动项</string>
     <string name="base_boot_from">启动自</string>
+    <string name="base_cpu_framework">"CPU架构: "</string>
+    <string name="base_x86_64">x86 (64位)</string>
+    <string name="base_aarch64">aarch64 (64位)</string>
+    <string name="base_model">"型号: "</string>
+    <string name="user_edit_cpu">CPU编辑</string>
+    <string name="base_memory">内存</string>
+    <string name="base_max">最大%s</string>
+    <string name="base_unit">单位</string>
+    <string name="base_units_raw_mb">兆字节</string>
+    <string name="base_units_raw_kb">千字节</string>
+    <string name="base_units_raw_gb">吉字节</string>
+    <string name="base_units_raw_b">字节</string>
+    <string name="base_units_b">%s字节</string>
+    <string name="user_saving_vm">保存虚拟机配置文件…</string>
+    <string name="base_error_vm_writing_failed">无法写入虚拟机文件</string>
+    <string name="base_unnamed">未命名</string>
 </resources>

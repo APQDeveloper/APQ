@@ -52,4 +52,23 @@
     <string name="base_msg_ules_conf_cause">Your selection won\'t work because we couldn\'t find the device or some file doesn\'t exist.</string>
     <string name="user_choose_to_boot">Choose an item to boot from</string>
     <string name="base_boot_from">Boot from</string>
+    <string name="base_cpu" translatable="false">CPU</string>
+    <string name="base_cpu_framework">"CPU Framework: "</string>
+    <string name="base_x86" translatable="false">x86</string>
+    <string name="base_x86_64">x86 (64-bit)</string>
+    <string name="base_arm" translatable="false">ARM</string>
+    <string name="base_aarch64">aarch64 (64-bit)</string>
+    <string name="base_model">Model:</string>
+    <string name="user_edit_cpu">CPU Edit</string>
+    <string name="base_memory">Memory</string>
+    <string name="base_max">Maximum %s</string>
+    <string name="base_unit">Unit</string>
+    <string name="base_units_raw_mb">MB</string>
+    <string name="base_units_raw_kb">KB</string>
+    <string name="base_units_raw_gb">GB</string>
+    <string name="base_units_raw_b">B</string>
+    <string name="base_units_b">%sB</string>
+    <string name="user_saving_vm">Saving VM profile…</string>
+    <string name="base_error_vm_writing_failed">Failed to write VM Profile.</string>
+    <string name="base_unnamed">Unnamed</string>
 </resources>

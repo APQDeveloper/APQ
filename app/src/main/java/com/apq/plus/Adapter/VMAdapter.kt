@@ -18,16 +18,16 @@ import com.apq.plus.Utils.VMProfile
  * 显示已有配置文件
  */
 class VMAdapter(val mList: List<VMProfile>) : RecyclerView.Adapter<VMAdapter.VMHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): VMHolder {
-        val view = LayoutInflater.from(parent!!.context).inflate(R.layout.layout_vm_item,parent,false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VMHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.layout_vm_item,parent,false)
         return VMHolder(view)
     }
 
     override fun getItemCount(): Int = mList.size
 
-    override fun onBindViewHolder(holder: VMHolder?, position: Int) {
+    override fun onBindViewHolder(holder: VMHolder, position: Int) {
         val item = mList[position]
-        holder!!.title.text = item.name
+        holder.title.text = item.name
         holder.icon.setImageBitmap(item.icon)
 
         holder.subtitle.setText(R.string.base_calcuating)

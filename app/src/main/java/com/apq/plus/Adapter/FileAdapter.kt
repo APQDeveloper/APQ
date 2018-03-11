@@ -20,15 +20,15 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
 
     abstract fun sort(dest: File) : ArrayList<File>
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): FileHolder {
-        val view = MaterialItemView(parent!!.context)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
+        val view = MaterialItemView(parent.context)
         return FileHolder(view)
     }
 
     override fun getItemCount(): Int = mList.size+1
 
-    override fun onBindViewHolder(holder: FileHolder?, position: Int) {
-        holder!!.view.background = null
+    override fun onBindViewHolder(holder: FileHolder, position: Int) {
+        holder.view.background = null
         holders.add(holder)
 
         val text: TextInfo
