@@ -66,4 +66,21 @@
     <string name="user_saving_vm">保存虚拟机配置文件…</string>
     <string name="base_error_vm_writing_failed">无法写入虚拟机文件</string>
     <string name="base_unnamed">未命名</string>
+    <string name="base_welcome_t">欢迎来到全新版本的APQ!</string>
+    <string name="base_welcome_s">点击此悬浮按钮来打开新世界的大门!</string>
+    <string name="base_welcome_vmeditor_t">这是虚拟机配置文件编辑器</string>
+    <string name="base_welcome_vmeditor_s">我猜你还不大了解它。这有些提示。</string>
+    <string name="base_instr_snapshot_t">快照</string>
+    <string name="base_instr_snapshot_s">你能在这看到虚拟机的截图，或者设置自己的照片。同时，它也会被展示在主屏幕。</string>
+    <string name="base_instr_nAd_t">名称和简介</string>
+    <string name="base_instr_nAd_s">你可以给这个虚拟机文件取名、写介绍，值得注意的是名称是必须要填的。</string>
+    <string name="base_instr_disk_t">磁盘选项</string>
+    <string name="base_instr_disk_s">允许你更改虚拟机磁盘。</string>
+    <string name="base_instr_cpu_t">CPU选项</string>
+    <string name="base_instr_cpu_s">允许你调整CPU架构，型号等等。</string>
+    <string name="base_instr_memory_t">内存选项</string>
+    <string name="base_instr_memory_s">允许你控制虚拟机的内存大小。</string>
+    <string name="base_instr_save_button_t">保存按钮</string>
+    <string name="base_instr_save_button_s">完成后即可点击该悬浮按钮来保存你的选项。</string>
+
 </resources>

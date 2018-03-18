@@ -3,6 +3,7 @@ package com.apq.plus.Adapter
 import android.app.Activity
 import android.os.Looper
 import android.support.v7.widget.AppCompatImageView
+import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,7 @@ import com.apq.plus.Utils.VMProfile
  * 用于MainRecyclerView的Adapter
  * 显示已有配置文件
  */
-class VMAdapter(val mList: List<VMProfile>) : RecyclerView.Adapter<VMAdapter.VMHolder>() {
+class VMAdapter(var mList: List<VMProfile>) : RecyclerView.Adapter<VMAdapter.VMHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VMHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.layout_vm_item,parent,false)
         return VMHolder(view)
@@ -28,7 +29,8 @@ class VMAdapter(val mList: List<VMProfile>) : RecyclerView.Adapter<VMAdapter.VMH
     override fun onBindViewHolder(holder: VMHolder, position: Int) {
         val item = mList[position]
         holder.title.text = item.name
-        holder.icon.setImageBitmap(item.icon)
+        if (item.icon != null)
+            holder.icon.setImageBitmap(item.icon)
 
         holder.subtitle.setText(R.string.base_calcuating)
         Thread({
@@ -41,12 +43,22 @@ class VMAdapter(val mList: List<VMProfile>) : RecyclerView.Adapter<VMAdapter.VMH
                 holder.subtitle.text = context.getString(R.string.base_units_mb,size.toString())
             }
         }).start()
+
+        holder.card.setOnClickListener {
+            if (mOnItemClickListener != null)
+                mOnItemClickListener?.invoke(item)
+        }
     }
 
     class VMHolder(view: View) : RecyclerView.ViewHolder(view){
         val title: TextView = view.findViewById(R.id.vm_title)
         val subtitle: TextView = view.findViewById(R.id.vm_subtitle)
         val icon: AppCompatImageView = view.findViewById(R.id.vm_icon_view)
+        val card: CardView = view as CardView
     }
 
+    var mOnItemClickListener : ((item: VMProfile) -> Unit)? = null
+    fun setItemOnClickListener(listener: (item: VMProfile) -> Unit){
+        mOnItemClickListener = listener
+    }
 }

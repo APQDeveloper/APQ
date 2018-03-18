@@ -27,11 +27,11 @@ import com.apq.plus.Adapter.DiskAdapter
 import com.apq.plus.Base.BaseActivity
 import com.apq.plus.Env
 import com.apq.plus.R
-import com.apq.plus.Utils.AppBarStateListener
-import com.apq.plus.Utils.DiskAdapterDecoration
-import com.apq.plus.Utils.VMProfile
+import com.apq.plus.Utils.*
 import com.apq.plus.View.MaterialItemView
 import com.apq.plus.View.TextInfo
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetView
 import com.xw.repo.BubbleSeekBar
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator
 import top.wefor.circularanim.CircularAnim
@@ -40,7 +40,7 @@ import java.io.File
 class VMEditActivity : BaseActivity() {
 
     //Data & Result
-    private var result = VMProfile.emptyObject
+    var result: VMProfile = VMProfile("","", VMProfile.CPU(VMProfile.CPU.FRAMEWORK_X86, "base"),null, VMProfile.DiskHolder.emptyObject, VMProfile.BootFrom(VMProfile.DiskHolder.CD), VMProfile.Memory(64.toDouble(), VMProfile.Units.MB),null,true)
     private var isSaving = false
     //View & Adapter
     private lateinit var diskAdapter: DiskAdapter
@@ -52,8 +52,86 @@ class VMEditActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         supportActionBar!!.setTitle(R.string.base_basic_info)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
+        showTapTargets(1)
         init()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("VM Editor","Recycling data...")
+    }
+
+    private fun showTapTargets(index: Int){
+        val sp = getSharedPreferences("app", Context.MODE_PRIVATE)
+        if (sp.getBoolean("isInstructionShown",false)){
+            return
+        }
+
+        when (index) {
+            1 -> TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.toolbar), getString(R.string.base_welcome_vmeditor_t), getString(R.string.base_welcome_vmeditor_s))
+                            .targetCircleColor(R.color.colorAccent)
+                    , object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView?) {
+                    super.onTargetClick(view)
+                    showTapTargets(2)
+                }
+            })
+            2 -> TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.snapshot),getString(R.string.base_instr_snapshot_t),getString(R.string.base_instr_snapshot_s))
+                            .transparentTarget(true)
+                    ,object : TapTargetView.Listener(){
+                override fun onTargetClick(view: TapTargetView?) {
+                    super.onTargetClick(view)
+                    showTapTargets(3)
+                }
+            })
+            3 -> TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.name),getString(R.string.base_instr_nAd_t),getString(R.string.base_instr_nAd_s))
+                            .transparentTarget(false)
+                            .targetCircleColor(R.color.colorAccent)
+                    ,object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView?) {
+                    super.onTargetClick(view)
+                    showTapTargets(4)
+                }
+            })
+            4 -> TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.card_disk_icon),getString(R.string.base_instr_disk_t),getString(R.string.base_instr_disk_s))
+                            .transparentTarget(true)
+                    ,object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView?) {
+                    super.onTargetClick(view)
+                    showTapTargets(5)
+                }
+            })
+            5 -> TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.cpu).findViewById(R.id.title_shape),getString(R.string.base_instr_cpu_t),getString(R.string.base_instr_cpu_s))
+                            .transparentTarget(true)
+                    ,object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView?) {
+                    super.onTargetClick(view)
+                    showTapTargets(6)
+                }
+            })
+            6 -> TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.memory).findViewById<View>(R.id.title_shape),getString(R.string.base_instr_memory_t),getString(R.string.base_instr_memory_s))
+                            .transparentTarget(true)
+                    ,object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView?) {
+                    super.onTargetClick(view)
+                    showTapTargets(7)
+                }
+            })
+            7 -> {
+                TapTargetView.showFor(this,
+                    TapTarget.forView(findViewById<View>(R.id.fab_save),getString(R.string.base_instr_save_button_t),getString(R.string.base_instr_save_button_s))
+                            .transparentTarget(true))
+                val editor = sp.edit()
+                editor.putBoolean("isInstructionShown",true)
+                editor.apply()
+            }
+        }
     }
 
     private fun init(){
@@ -83,6 +161,11 @@ class VMEditActivity : BaseActivity() {
                 }
             }
         })
+        //name & description
+        val name: TextInputEditText = findViewById(R.id.name)
+        val description: TextInputEditText = findViewById(R.id.description)
+        name.setText(result.name)
+        description.setText(result.description)
 
         //disk
         diskAdapter = DiskAdapter(result.disks!!)
@@ -224,7 +307,8 @@ class VMEditActivity : BaseActivity() {
                 CircularAnim.fullActivity(this,mask)
                         .colorOrImageRes(R.color.colorPrimaryLight)
                         .go {
-                            startActivity(Intent(this,MainActivity::class.java))
+                            setResult(Activity.RESULT_OK)
+                            finish()
                         }
             })
             val anim = AlphaAnimation(0f,0.7f)
@@ -244,23 +328,26 @@ class VMEditActivity : BaseActivity() {
         isSaving = true
         Env.closeSoftInput(this)
         /* Data Collection */
+        val changeInsteadOfCreating : Boolean = !result.name.isEmpty()
+        val oldName : String? = if (changeInsteadOfCreating) result.name else null
+
         val nameEdit = findViewById<TextInputEditText>(R.id.name)
         val descriptionEdit = findViewById<TextInputEditText>(R.id.description)
         result.name = nameEdit.text.toString()
-        result.description = nameEdit.text.toString()
-        /* Data Save */
-        val dir = File("$filesDir/VMProfile")
-        if (!dir.exists() || dir.isFile){
-            dir.deleteRecursively()
-            dir.mkdir()
+        result.description = descriptionEdit.text.toString()
+        if (result.name.isEmpty()){
+            result.name = getString(R.string.base_unnamed)
         }
-        val save = File("$filesDir/VMProfile/${
-            if (result.name.isEmpty()){
-                getString(R.string.base_unnamed)
-            }else{
-                result.name
-            }
-        }.json")
+        /* Data Save */
+        if (!Env.VMProfileDir.exists() || Env.VMProfileDir.isFile){
+            Env.VMProfileDir.deleteRecursively()
+            Env.VMProfileDir.mkdir()
+        }
+        if (changeInsteadOfCreating){
+            val old = File("$filesDir/VMProfile/$oldName.json")
+            old.delete()
+        }
+        val save = File("$filesDir/VMProfile/${result.name}.json")
         save.createNewFile()
         save.writeText(result.toString())
         if (save.exists()) {
@@ -504,7 +591,8 @@ class VMEditActivity : BaseActivity() {
     private fun loadData(){
         val data = intent.getStringExtra("dataToEdit")
         if (!data.isNullOrEmpty()){
-            result = VMProfile.getVMProfileByJSON(data)
+            Log.i("VM Editor","Init data from Intent.")
+            result = VMCompat.getVMProfileByJSON(data)
         }
     }
 
@@ -519,8 +607,10 @@ class VMEditActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
-        if (!isSaving)
+        if (!isSaving) {
+            setResult(Activity.RESULT_CANCELED)
             super.onBackPressed()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

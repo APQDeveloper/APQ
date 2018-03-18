@@ -42,6 +42,7 @@ class LaunchActivity : BaseActivity() {
     lateinit var file : File
     private fun initAPQ(){
         Env.APQDir = File("${filesDir.path}/APQ")
+        Env.VMProfileDir = File("$filesDir/VMProfile")
         if (Env.APQDir.exists() && proofreadAPQ()){
             iconView.visibility = View.VISIBLE
             Handler().postDelayed({

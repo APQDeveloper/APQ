@@ -21,4 +21,11 @@ object ActivityCollector {
                 it.finish()
         }
     }
+
+    fun finishByClass(cls: Class<*>){
+        activities.forEach {
+            if (it.javaClass == cls)
+                it.finish()
+        }
+    }
 }

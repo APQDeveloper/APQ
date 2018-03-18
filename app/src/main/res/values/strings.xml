@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">APQ Simulator</string>
+    <string name="app_name">APQ Emulator</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -71,4 +71,20 @@
     <string name="user_saving_vm">Saving VM profile…</string>
     <string name="base_error_vm_writing_failed">Failed to write VM Profile.</string>
     <string name="base_unnamed">Unnamed</string>
+    <string name="base_welcome_t">Welcome to the full new APQ!</string>
+    <string name="base_welcome_s">Click this floating button to open wonder!</string>
+    <string name="base_welcome_vmeditor_t">Here is the VM Profile Editor.</string>
+    <string name="base_welcome_vmeditor_s">I guess you havn\'t known it too much. There are some instructions.</string>
+    <string name="base_instr_snapshot_t">The Snapshot</string>
+    <string name="base_instr_snapshot_s">You can see a screenshot in the virtual machine or put your own photo here. It also shows in the main screen.</string>
+    <string name="base_instr_nAd_t">Name &amp; Description</string>
+    <string name="base_instr_nAd_s">Allow you to name and describe the VM profile. It is noteworthy that the name is necessary to fill in.</string>
+    <string name="base_instr_disk_t">Disk Options</string>
+    <string name="base_instr_disk_s">Allows you to change disks of the virtual machine.</string>
+    <string name="base_instr_cpu_t">CPU Options</string>
+    <string name="base_instr_cpu_s">Allows you to control CPU framework, model, etc.</string>
+    <string name="base_instr_memory_t">Memory Options</string>
+    <string name="base_instr_memory_s">Allows you to control VM\'s memory size.</string>
+    <string name="base_instr_save_button_t">The Save Button</string>
+    <string name="base_instr_save_button_s">After you have done, click the floating button to save your options.</string>
 </resources>

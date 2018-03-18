@@ -251,16 +251,15 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
         }
     }
 
-    companion object {
-        fun getVMProfileByJSON(profile: String): VMProfile{
-            val gson = Gson()
-            return gson.fromJson(profile,VMProfile::class.java)
-        }
-        val emptyObject = VMProfile("","",CPU(CPU.FRAMEWORK_X86,"base"),null, DiskHolder.emptyObject,BootFrom(DiskHolder.CD), Memory(64.toDouble(), MB),null,true)
-    }
-
     override fun toString(): String {
         val gson = Gson()
         return gson.toJson(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is VMProfile){
+            return (other as VMProfile).toString() == this.toString()
+        }
+        return false
     }
 }

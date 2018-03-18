@@ -42,6 +42,9 @@ object FileUtils {
     }
     fun getFileSize(file: File,unit: FileSizeUnits) : Double {
         var result = 0L
+        if (!file.exists()){
+            return result.toDouble()
+        }
         if (file.isDirectory){
             listChildFile(file).forEach { result += it.readBytes().size }
         }

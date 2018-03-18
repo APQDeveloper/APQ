@@ -19,6 +19,7 @@ import java.math.RoundingMode
 
 /**
  * Created by zhufu on 2/5/18.
+ * 环境
  */
 object Env {
     //屏幕
@@ -31,6 +32,7 @@ object Env {
     }
     //虚拟机
     lateinit var APQDir: File
+    lateinit var VMProfileDir: File
 
     fun makeErrorDialog(context: Context,e: String,isSerious: Boolean = false){
         val dialog = AlertDialog.Builder(context)
