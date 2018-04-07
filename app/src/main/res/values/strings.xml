@@ -71,7 +71,7 @@
     <string name="user_saving_vm">Saving VM profile…</string>
     <string name="base_error_vm_writing_failed">Failed to write VM Profile.</string>
     <string name="base_unnamed">Unnamed</string>
-    <string name="base_welcome_t">Welcome to the full new APQ!</string>
+    <string name="base_welcome_t">Welcome to the whole new APQ!</string>
     <string name="base_welcome_s">Click this floating button to open wonder!</string>
     <string name="base_welcome_vmeditor_t">Here is the VM Profile Editor.</string>
     <string name="base_welcome_vmeditor_s">I guess you havn\'t known it too much. There are some instructions.</string>
@@ -87,4 +87,10 @@
     <string name="base_instr_memory_s">Allows you to control VM\'s memory size.</string>
     <string name="base_instr_save_button_t">The Save Button</string>
     <string name="base_instr_save_button_s">After you have done, click the floating button to save your options.</string>
+    <string name="base_instr_firstvm_t">It seems that you have created a new Virtual Machine.</string>
+    <string name="base_instr_firstvm_s">Click this button to run!</string>
+    <string name="base_vm_error_title">Failed to start VM</string>
+    <string name="base_vm_error_content">Here are the details:</string>
+    <string name="user_dismiss">Dismiss</string>
+    <string name="base_error_refreshing">Unable to refresh: Some VM is running.</string>
 </resources>

@@ -28,6 +28,13 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
                     MB -> this!= B &&this!=KB&&this!=MB
                     GB -> false
                 }
+        val qemuName: Char
+        get() = when (this){
+                    B -> 'b'
+                    KB -> 'k'
+                    MB -> 'M'
+                    GB -> 'G'
+                }
     }
 
     class DiskHolder {
@@ -45,9 +52,9 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
                         null
                     else
                         when (label) {
-                            HardDisk -> "hd$useAs"
-                            FloppyDisk -> "fd$useAs"
-                            else -> "cdrom"
+                            HardDisk -> "hd$useAs $diskFile"
+                            FloppyDisk -> "fd$useAs $diskFile"
+                            else -> "cdrom $diskFile"
                         }
 
             val isEmpty: Boolean
@@ -76,13 +83,13 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
             }
         }
 
-        val params: String?
+        val params: String
         get() {
             val stringBuilder = StringBuilder()
             mList.forEach {
                 val param = it.params
                 if (!param.isNullOrEmpty())
-                stringBuilder.append("-$param ")
+                    stringBuilder.append("-$param ")
             }
             return stringBuilder.toString()
         }
@@ -242,6 +249,8 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
                     ,"virt-2.11","virt-2.6","virt-2.7","virt-2.8","virt-2.9","xilinx-zynq-a9","xlnx-ep108"
                     ,"xlnx-zcu102","z2")
         }
+        val params: String
+        get() = "cpu $model"
     }
     /* 内存 */
     class Memory(var size: Double = 0.toDouble(),var unit: Units = MB){
@@ -261,5 +270,40 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
             return (other as VMProfile).toString() == this.toString()
         }
         return false
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + description.hashCode()
+        result = 31 * result + cpu.hashCode()
+        result = 31 * result + (icon?.hashCode() ?: 0)
+        result = 31 * result + (disks?.hashCode() ?: 0)
+        result = 31 * result + bootFrom.hashCode()
+        result = 31 * result + memory.hashCode()
+        result = 31 * result + (extraHardware?.hashCode() ?: 0)
+        result = 31 * result + useVnc.hashCode()
+        return result
+    }
+
+    var runningId: Int = 0
+    val vncPort: Int
+    get() = runningId
+    val monitorPort: Int
+    get() = runningId+4444
+    fun getParams(id: Int): String{
+        val params = ArrayList<String>()
+        params.add("qemu-system-${cpu.framework}")
+        params.add(disks!!.params)
+        params.add(bootFrom.params!!)
+        params.add("-m ${memory.size}${memory.unit.qemuName}")
+        params.add("-${cpu.params}")
+        if (useVnc) params.add("-vnc :$id")
+        params.add("-monitor tcp:127.0.0.1:${4444+id},server,nowait")
+
+        runningId = id
+
+        var result = String()
+        params.forEach { result+=("$it ${if (it.isNotEmpty()) " " else ""}") }
+        return result
     }
 }

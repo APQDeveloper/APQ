@@ -18,7 +18,10 @@ import com.apq.plus.Env
 import com.apq.plus.R
 import com.apq.plus.Utils.FileUtils
 import com.apq.plus.Utils.ZipUtils
+import eu.darken.rxshell.cmd.Cmd
+import eu.darken.rxshell.cmd.RxCmdShell
 import java.io.File
+import java.math.BigDecimal
 
 val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
@@ -41,7 +44,11 @@ class LaunchActivity : BaseActivity() {
 
     lateinit var file : File
     private fun initAPQ(){
-        Env.APQDir = File("${filesDir.path}/APQ")
+        val framework = Env.systemFramework//系统架构
+        if (framework == null || (!framework.contains("arm") && framework != "aarch64")){
+            throw Exception("Unsupported system framework: $framework!")
+        }
+        Env.APQDir = File("${filesDir.path}/${if (framework.contains("arm")) "qemu32" else "qemu64"}")
         Env.VMProfileDir = File("$filesDir/VMProfile")
         if (Env.APQDir.exists() && proofreadAPQ()){
             iconView.visibility = View.VISIBLE
@@ -84,7 +91,13 @@ class LaunchActivity : BaseActivity() {
                             override fun onAnimationEnd(animation: Animation?) {
                                 //抽取raw/apq.zip
                                 file = File("${filesDir.path}/APQ.zip")
-                                file.writeBytes(resources.openRawResource(R.raw.apq).readBytes())
+                                file.writeBytes(resources.openRawResource(
+                                        when {
+                                            framework.contains("arm") -> R.raw.qemu32
+                                            framework == "aarch64" -> R.raw.qemu64
+                                            else -> 0
+                                        }
+                                ).readBytes())
 
                                 val dest = filesDir
                                 ZipUtils.extractWithProgress(file,dest,handler,false,true)
@@ -115,6 +128,7 @@ class LaunchActivity : BaseActivity() {
                 loadingMsg.setText(R.string.progress_msg_proofread)
                 Thread({
                     if (proofreadAPQ()) {
+                        Cmd.builder("chmod -R +x ${Env.APQDir}").execute(RxCmdShell.builder().build())
                         runOnUiThread{
                             loadingMsg.setText(R.string.progress_msg_done)
                         }
@@ -143,11 +157,14 @@ class LaunchActivity : BaseActivity() {
     }
 
     private fun proofreadAPQ(): Boolean{
-        val listToBeProofread = FileUtils.listChildFile(Env.APQDir)
-        var size : Double = 0.toDouble()
-        listToBeProofread.forEach { size += FileUtils.getFileSize(it,FileUtils.FileSizeUnits.MB) }
-
-        return listToBeProofread.size >= 210 && size>=72
+        val framework = Env.systemFramework
+        val md5 = File("$filesDir/check.md5")
+        when {
+            framework!!.contains("arm") -> md5.writeBytes(resources.openRawResource(R.raw.qemu32md5).readBytes())
+            framework == "aarch64" -> md5.writeBytes(resources.openRawResource(R.raw.qemu64md5).readBytes())
+            else -> return false
+        }
+        return Env.checkMD5(Env.APQDir, md5)
     }
 
     private fun request() {
@@ -159,7 +176,11 @@ class LaunchActivity : BaseActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            initAPQ()
+            try {
+                initAPQ()
+            }catch (e: Exception){
+                Env.makeErrorDialog(this,e.toString(),true)
+            }
         } else {
             Snackbar.make(findViewById(R.id.icon), R.string.user_permissions_requested, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.base_ok, {

@@ -7,12 +7,15 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.content.DialogInterface
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.apq.plus.Utils.VMProfile
 import com.apq.plus.Utils.VMProfile.Units.*
+import eu.darken.rxshell.cmd.Cmd
+import eu.darken.rxshell.cmd.RxCmdShell
 import java.io.File
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -53,6 +56,31 @@ object Env {
 
         dialog.show()
     }
+
+    fun makeVMErrorDialog(context: Context,e: List<String>){
+        val dialog = AlertDialog.Builder(context)
+
+        dialog.setTitle(R.string.base_vm_error_title)
+        val msg = StringBuilder()
+        msg.append(context.getString(R.string.base_vm_error_content))
+        msg.append('\n')
+        e.forEach {
+            msg.append("$it\n")
+        }
+        dialog.setMessage(msg.toString())
+
+        dialog.setNegativeButton(R.string.user_dismiss,null)
+        dialog.setNeutralButton(R.string.user_copy, { _: DialogInterface, _: Int ->
+            val clip : ClipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            val data = ClipData.newPlainText("Error Message",e.toString())
+
+            clip.primaryClip = data
+            Toast.makeText(context,R.string.base_copied,Toast.LENGTH_SHORT).show()
+        })
+
+        dialog.show()
+    }
+    /* 系统 */
     /* 关闭软键盘 */
     fun closeSoftInput(context: Context?){
         if (context != null)
@@ -108,5 +136,28 @@ object Env {
         }
         memory.size = BigDecimal(memory.size.toString()).multiply(1024.toBigDecimal()).toDouble()
         return memory
+    }
+    /* 获得系统架构 */
+    val systemFramework : String?
+    get() {
+        val result = Cmd.builder("uname -a").execute(RxCmdShell.builder().build())
+        if (result.exitCode == 0){
+            val out = result.output.first()
+            for (i in out.length-1 downTo 0){
+                if (out[i] == ' '){
+                    return out.substring(i+1)
+                }
+            }
+        }
+        return null
+    }
+
+    fun checkMD5(target: File?,md5File: File?): Boolean{
+        if (target == null || md5File == null)
+            return false
+        val session = RxCmdShell.builder().open().blockingGet()
+        session.submit(Cmd.builder("cd ${target.parent}").build()).blockingGet()
+        val result = Cmd.builder("md5sum -c ${md5File.path}").execute(session)
+        return result.exitCode == 0
     }
 }

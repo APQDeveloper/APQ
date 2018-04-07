@@ -82,5 +82,11 @@
     <string name="base_instr_memory_s">允许你控制虚拟机的内存大小。</string>
     <string name="base_instr_save_button_t">保存按钮</string>
     <string name="base_instr_save_button_s">完成后即可点击该悬浮按钮来保存你的选项。</string>
+    <string name="base_instr_firstvm_t">你已经创建一个虚拟机了</string>
+    <string name="base_instr_firstvm_s">点击此按钮以运行!</string>
+    <string name="base_vm_error_title">无法启动虚拟机</string>
+    <string name="base_vm_error_content">详细信息如下:</string>
+    <string name="user_dismiss">忽略</string>
+    <string name="base_error_refreshing">无法刷新: 有虚拟机正在运行</string>
 
 </resources>

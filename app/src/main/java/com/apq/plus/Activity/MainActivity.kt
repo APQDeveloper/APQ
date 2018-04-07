@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.support.design.widget.NavigationView
+import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
@@ -23,6 +24,7 @@ import com.apq.plus.Env
 import com.apq.plus.R
 import com.apq.plus.Utils.Differ
 import com.apq.plus.Utils.VMProfile
+import com.apq.plus.VMObject
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.gson.Gson
@@ -34,7 +36,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var recyclerView: RecyclerView
     lateinit var fab: FloatingActionButton
     private var mainAdapter: VMAdapter? = null
-    private var VMList = ArrayList<VMProfile>()
+    private var VMList = ArrayList<VMObject>()
+    private val isAnyVMRunning: Boolean
+    get(){
+        VMList.forEach {
+            if (it.isRunning)
+                return true
+        }
+        return false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -57,19 +68,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val refresh : SwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
         refresh.setColorSchemeColors(resources.getColor(R.color.colorAccent))
         refresh.setOnRefreshListener {
-            Thread({
-                Thread.sleep(300)
-                refreshProfileData()
+            if (!isAnyVMRunning) {
+                Thread({
+                    Thread.sleep(300)
+                    refreshProfileData()
+                    refresh.isRefreshing = false
+                }).start()
+            }
+            else{
+                Snackbar.make(fab,R.string.base_error_refreshing,Snackbar.LENGTH_LONG).show()
                 refresh.isRefreshing = false
-            }).start()
+            }
         }
 
         if (mainAdapter != null){
             mainAdapter!!.setItemOnClickListener {
                 val intent = Intent(this,VMEditActivity::class.java)
-                intent.putExtra("dataToEdit",it.toString())
+                intent.putExtra("dataToEdit",it.profile.toString())
                 Log.i("VM Editor","Start editor by json.")
                 startActivityForResult(intent,0)
+            }
+
+            mainAdapter!!.setStartListener {
+                it.setOutPutChangedListener {
+                    if (it!=null){
+                        if (it.errors.size > 0){
+                            runOnUiThread {
+                                Env.makeVMErrorDialog(this,it.errors)
+                            }
+                        }
+                    }
+                }
+                it.run()
+            }
+            mainAdapter!!.setStopListener {
+                it.stop({r ->
+                    Log.i("VirtualMachineStopJob","Stopping ${it.profile.name}: ${if (r == null) "Done" else "Failed"}.")
+                    if (r != null){
+                        Env.makeErrorDialog(this,r.toString())
+                    }
+                })
             }
         }
 
@@ -92,7 +130,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (it.isFile && it.canRead()){
                 val gson = Gson()
                 try {
-                    VMList.add(gson.fromJson(it.readText(),VMProfile::class.java))
+                    VMList.add(VMObject(gson.fromJson(it.readText(),VMProfile::class.java),VMList.size))
                 }catch (e: JsonSyntaxException){
                     e.printStackTrace()
                     Env.makeErrorDialog(this,e.toString())

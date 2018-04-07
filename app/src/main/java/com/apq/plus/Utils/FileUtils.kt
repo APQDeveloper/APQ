@@ -1,5 +1,6 @@
 package com.apq.plus.Utils
 
+import android.util.Log
 import java.io.File
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -40,35 +41,45 @@ object FileUtils {
     enum class FileSizeUnits{
         B,KB,MB,GB
     }
-    fun getFileSize(file: File,unit: FileSizeUnits) : Double {
-        var result = 0L
+    fun getFileSize(file: File,unit: FileSizeUnits) : BigDecimal {
+        var result = BigDecimal(0)
         if (!file.exists()){
-            return result.toDouble()
+            return result
         }
         if (file.isDirectory){
-            listChildFile(file).forEach { result += it.readBytes().size }
+            listChildFile(file).forEach { result+= fileSize(it).toBigDecimal() }
         }
         else{
-            result += file.readBytes().size
+            result = fileSize(file).toBigDecimal()
         }
 
-        val b: BigDecimal
-        when(unit){
+        val b: BigDecimal = when(unit){
             FileSizeUnits.KB -> {
-                b = BigDecimal((result/1024f).toString())
+                result.divide(1024.toBigDecimal())
 
             }
             FileSizeUnits.MB -> {
-                b = BigDecimal((result/1024f/1024).toString())
+                result.divide(BigDecimal(1024).pow(2))
             }
             FileSizeUnits.GB -> {
-                b = BigDecimal((result/1024f/1024/1024).toString())
+                result.divide(BigDecimal(1024).pow(3))
             }
             else -> {
-                b = BigDecimal(result.toString())
+                result
             }
 
         }
-        return b.setScale(3,RoundingMode.HALF_UP).toDouble()
+
+        return b.setScale(3,RoundingMode.HALF_UP)
+    }
+
+    private fun fileSize(file: File): Long{
+        var r = 0L
+        if (file.isDirectory)
+            return r
+        val fc = file.inputStream().channel
+        r = fc.size()
+        Log.d("","Size of $file is $r")
+        return r
     }
 }
