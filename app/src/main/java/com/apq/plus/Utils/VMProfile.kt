@@ -13,7 +13,7 @@ import com.apq.plus.Utils.VMProfile.Units.*
  * Created by zhufu on 2/5/18.
  * 虚拟机配置文件对象
  */
-class VMProfile(var name: String, var description: String,var cpu: CPU, var icon: Bitmap? = null, var disks: DiskHolder?, var bootFrom: BootFrom,var memory: Memory, var extraHardware: HardwareHolder?, var useVnc: Boolean = true){
+class VMProfile(var name: String, var description: String,var cpu: CPU, var icon: Bitmap? = null, var disks: DiskHolder?, var bootFrom: BootFrom,var memory: Memory, var extraHardware: HardwareHolder?, var useVnc: Boolean = true, var id: Int = -1){
     /**
      * 单位
      * 仅考虑到GB
@@ -285,12 +285,11 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
         return result
     }
 
-    var runningId: Int = 0
     val vncPort: Int
-    get() = runningId
+    get() = id
     val monitorPort: Int
-    get() = runningId+4444
-    fun getParams(id: Int): String{
+    get() = id+4444
+    fun getParams(): String{
         val params = ArrayList<String>()
         params.add("qemu-system-${cpu.framework}")
         params.add(disks!!.params)
@@ -299,8 +298,6 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
         params.add("-${cpu.params}")
         if (useVnc) params.add("-vnc :$id")
         params.add("-monitor tcp:127.0.0.1:${4444+id},server,nowait")
-
-        runningId = id
 
         var result = String()
         params.forEach { result+=("$it ${if (it.isNotEmpty()) " " else ""}") }

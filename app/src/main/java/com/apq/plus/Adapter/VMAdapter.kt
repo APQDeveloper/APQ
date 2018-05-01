@@ -12,10 +12,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.apq.plus.R
 import com.apq.plus.Utils.FileUtils
-import com.apq.plus.Utils.VMProfile
+import com.apq.plus.Utils.VMCompat
 import com.apq.plus.VMObject
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
+import java.io.File
 import java.math.BigDecimal
 
 /**
@@ -33,66 +34,74 @@ class VMAdapter(var mList: List<VMObject>) : RecyclerView.Adapter<VMAdapter.VMHo
 
     override fun onBindViewHolder(holder: VMHolder, position: Int) {
         val item = mList[position]
-        holder.title.text = item.profile.name
-        if (item.profile.icon != null)
-            holder.icon.setImageBitmap(item.profile.icon)
+        if (item.baseInfo.isNull){
+            //If the object is not found
+            holder.icon.setImageResource(R.drawable.ic_do_not_disturb_black)
+            val context = holder.title.context
+            holder.title.text = context.getString(R.string.base_object_not_found_title)
+            holder.subtitle.text = context.getString(R.string.base_object_not_found,"\"${File(item.baseInfo.file).nameWithoutExtension}\"")
 
-        holder.subtitle.setText(R.string.base_calcuating)
-        Thread({
-            val context = holder.subtitle.context
-            var size = BigDecimal(0)
-            item.profile.disks!!.forEach{
-                size += FileUtils.getFileSize(it.diskFile!!,FileUtils.FileSizeUnits.MB)
-            }
-            (context as Activity).runOnUiThread {
-                holder.subtitle.text = context.getString(R.string.base_units_mb,size.toString())
-            }
-        }).start()
+            holder.start.isEnabled = false
+            holder.stop.isEnabled = false
+            holder.start.setImageResource(R.drawable.ic_play_arrow_grey)
+            holder.stop.setImageResource(R.drawable.ic_stop_grey)
+        }else {
+            holder.title.text = item.baseInfo.name
+            if (item.baseInfo.icon != null)
+                holder.icon.setImageBitmap(item.baseInfo.icon)
 
-        holder.card.setOnClickListener {
-            if (mOnItemClickListener != null)
-                mOnItemClickListener?.invoke(item)
-        }
-
-        val context = holder.card.context
-        val pre = context.getSharedPreferences("app", Context.MODE_PRIVATE)
-        if (!pre.getBoolean("isFirstVMShown",false)){
-            TapTargetView.showFor(context as Activity,TapTarget.forView(holder.start,context.getString(R.string.base_instr_firstvm_t),context.getString(R.string.base_instr_firstvm_s))
-                    .transparentTarget(true),object : TapTargetView.Listener() {
-                override fun onTargetClick(view: TapTargetView?) {
-                    super.onTargetClick(view)
-                    val edit = pre.edit()
-                    edit.putBoolean("isFirstVMShown",true)
-                    edit.apply()
+            holder.subtitle.setText(R.string.base_calcuating)
+            Thread({
+                val context = holder.subtitle.context
+                val size = item.baseInfo.totalSize
+                (context as Activity).runOnUiThread {
+                    holder.subtitle.text = context.getString(R.string.base_units_mb, size.toString())
                 }
-            })
-        }
-        fun updateButtons(){
-            if (item.isRunning){
-                holder.stop.isEnabled = true
-                holder.stop.setImageResource(R.drawable.ic_stop_black)
-                holder.start.isEnabled = false
-                holder.start.setImageResource(R.drawable.ic_play_arrow_grey)
-            }else{
-                holder.stop.isEnabled = false
-                holder.stop.setImageResource(R.drawable.ic_stop_grey)
-                holder.start.isEnabled = true
-                holder.start.setImageResource(R.drawable.ic_play_arrow_black)
+            }).start()
+
+            holder.card.setOnClickListener {
+                if (mOnItemClickListener != null)
+                    mOnItemClickListener?.invoke(item)
             }
+
+            val context = holder.card.context
+            val pre = context.getSharedPreferences("app", Context.MODE_PRIVATE)
+            if (!pre.getBoolean("isFirstVMShown", false)) {
+                TapTargetView.showFor(context as Activity, TapTarget.forView(holder.start, context.getString(R.string.base_instr_firstvm_t), context.getString(R.string.base_instr_firstvm_s))
+                        .transparentTarget(true), object : TapTargetView.Listener() {
+                    override fun onTargetClick(view: TapTargetView?) {
+                        super.onTargetClick(view)
+                        val edit = pre.edit()
+                        edit.putBoolean("isFirstVMShown", true)
+                        edit.apply()
+                    }
+                })
+            }
+            fun updateButtons() {
+                if (item.isRunning) {
+                    holder.stop.isEnabled = true
+                    holder.stop.setImageResource(R.drawable.ic_stop_black)
+                    holder.start.isEnabled = false
+                    holder.start.setImageResource(R.drawable.ic_play_arrow_grey)
+                } else {
+                    holder.stop.isEnabled = false
+                    holder.stop.setImageResource(R.drawable.ic_stop_grey)
+                    holder.start.isEnabled = true
+                    holder.start.setImageResource(R.drawable.ic_play_arrow_black)
+                }
+            }
+            holder.start.setOnClickListener {
+                mStartListener?.invoke(item,{
+                    updateButtons()
+                })
+            }
+            holder.stop.setOnClickListener {
+                mStopListener?.invoke(item,{
+                    updateButtons()
+                })
+            }
+            updateButtons()
         }
-        holder.start.setOnClickListener {
-            mStartListener?.invoke(item)
-            Handler().postDelayed({
-                updateButtons()
-            },300)
-        }
-        holder.stop.setOnClickListener {
-            mStopListener?.invoke(item)
-            Handler().postDelayed({
-                updateButtons()
-            },300)
-        }
-        updateButtons()
     }
 
     class VMHolder(view: View) : RecyclerView.ViewHolder(view){
@@ -109,12 +118,12 @@ class VMAdapter(var mList: List<VMObject>) : RecyclerView.Adapter<VMAdapter.VMHo
         mOnItemClickListener = listener
     }
 
-    private var mStartListener: ((item: VMObject) -> Unit)? = null
-    fun setStartListener(l: (item: VMObject) -> Unit){
+    private var mStartListener: ((item: VMObject,onDone: () -> Unit) -> Unit)? = null
+    fun setStartListener(l: (item: VMObject, onDone: () -> Unit) -> Unit){
         mStartListener = l
     }
-    private var mStopListener: ((item: VMObject) -> Unit)? = null
-    fun setStopListener(l: (item: VMObject) -> Unit){
+    private var mStopListener: ((item: VMObject,onDone: () -> Unit) -> Unit)? = null
+    fun setStopListener(l: (item: VMObject, onDone: () -> Unit) -> Unit){
         mStopListener = l
     }
 }

@@ -93,4 +93,10 @@
     <string name="base_vm_error_content">Here are the details:</string>
     <string name="user_dismiss">Dismiss</string>
     <string name="base_error_refreshing">Unable to refresh: Some VM is running.</string>
+    <string name="base_advanced_runing_options">Advanced Running Options</string>
+    <string name="base_object_not_found_title">VM Not Found</string>
+    <string name="base_object_not_found">Something with the VM whose file name is %s went wrong.</string>
+    <string name="user_console_title">The Console</string>
+    <string name="user_console_subtitle">To control the VM by qemu commands for some advanced operations.</string>
+    <string name="base_vm_running_snackbar">VM is running on %s %s</string>
 </resources>

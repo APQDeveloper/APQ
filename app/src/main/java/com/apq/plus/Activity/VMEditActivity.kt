@@ -135,7 +135,8 @@ class VMEditActivity : BaseActivity() {
     }
 
     private fun init(){
-        loadData()
+        if (!loadData())
+            return
 
         val appBarLayout = findViewById<AppBarLayout>(R.id.app_bar)
         diskRecyclerView = findViewById(R.id.disk_recycler_view)
@@ -197,6 +198,7 @@ class VMEditActivity : BaseActivity() {
         //控件
         val bootSelection = findViewById<MaterialItemView>(R.id.boot_from)
         bootSelection.set(getTextInfoByBootFrom(result.bootFrom))
+        bootSelection.tag = result.bootFrom.boot
         val bootError = findViewById<AppCompatImageView>(R.id.boot_error_alert)
         //控制错误提示，如果选定项不存在则弹出
         fun updateBootError() { bootError.visibility = if(result.disks!!.has(bootSelection.tag as String)) View.INVISIBLE else View.VISIBLE }
@@ -262,6 +264,7 @@ class VMEditActivity : BaseActivity() {
             bootSelection.set(getTextInfoByBootFrom(result.bootFrom))
             updateBootError()
         }
+        updateBootError()
 
         //CPU选项
         fun getCpuTextInfoByObject(cpu: VMProfile.CPU) : TextInfo = TextInfo(TextInfo.DO_NOT_CHANGE_TITLE,"${cpu.framework}, ${cpu.model}",R.drawable.ic_cpu)
@@ -588,12 +591,29 @@ class VMEditActivity : BaseActivity() {
         dialog.show()
     }
 
-    private fun loadData(){
+    private fun loadData(): Boolean{
         val data = intent.getStringExtra("dataToEdit")
         if (!data.isNullOrEmpty()){
             Log.i("VM Editor","Init data from Intent.")
-            result = VMCompat.getVMProfileByJSON(data)
+            if (data.contains("new")){
+                val index = data.indexOf(":")
+                try {
+                    result.id = data.substring(index+1).toInt()
+                }catch (e: NumberFormatException){
+                    e.printStackTrace()
+                    Env.makeErrorDialog(this,"Null VM Profile ID")
+                }
+                return true
+            }
+            val tmp = VMCompat.getVMProfileByJSON(data)
+            if (tmp != null) {
+                result = tmp
+            } else {
+                Env.makeErrorDialog(this,"Object Not Found",true)
+                return false
+            }
         }
+        return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

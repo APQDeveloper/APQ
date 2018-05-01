@@ -31,8 +31,10 @@
             android:name=".Activity.VMEditActivity"
             android:theme="@style/AppTheme.CollapsingToolbar" />
         <activity android:name=".Activity.FileChooserActivity" />
-        <activity android:name=".Activity.DetailActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".Activity.DetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activity.ConsoleActivity"></activity>
     </application>
 
 </manifest>

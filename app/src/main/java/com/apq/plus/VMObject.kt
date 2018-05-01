@@ -1,74 +1,109 @@
 package com.apq.plus
 
 import android.util.Log
-import com.apq.plus.Utils.VMProfile
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import java.io.IOException
 import java.io.PrintWriter
 import java.net.Socket
 import android.os.StrictMode
-import io.reactivex.functions.BiConsumer
-import java.net.SocketAddress
+import com.apq.plus.Utils.VMCompat
 
 
-class VMObject(val profile: VMProfile,val runningId: Int) {
-    val params = profile.getParams(runningId)
-    var session = buildSession()
-    var monitorClient: Socket? = null
+class VMObject(val baseInfo: VMCompat.BaseInfo) {
+    var session: RxCmdShell.Session? = null
 
-    private var mOutPutChangedListener: ((result: Cmd.Result?) -> Unit)? = null
-    fun setOutPutChangedListener(l: (result: Cmd.Result?) -> Unit){
-        mOutPutChangedListener = l
+    private var mExceptionListener: ((e: Exception) -> Unit)? = null
+    fun setExceptionListener(l: (e: Exception) -> Unit){
+        mExceptionListener = l
     }
 
     var isRunning: Boolean = false
+    fun updateRunningStatus(){
+        Env.switchNetThread()
+        isRunning = try {
+            val tmp = Socket("127.0.0.1",baseInfo.monitorPort)
+            tmp.close()
+            true
+        }catch (e: Exception){
+            false
+        }
+    }
 
-    fun run(){
+    init {
+        updateRunningStatus()
+    }
+
+    fun run(onStarted: (() -> Unit)?,onDone: ((result: Cmd.Result?,e: IOException?) -> Unit)?){
+        if (baseInfo.isNull)
+            return
         isRunning = true
-        if (!session.isAlive.blockingGet()){
+        val params = baseInfo.profile
+        if (params == null){
+            mExceptionListener?.invoke(Exception("Object Not Found"))
+            return
+        }
+        if (session == null || !session!!.isAlive.blockingGet()){
             session = buildSession()
         }
         Log.d("APQ","Use directory ${Env.APQDir}")
-        Log.i("VirtualMachines","Start ${profile.name} with params: $params")
         Thread({
-            session.submit(Cmd.builder("${Env.APQDir}/bin/$params").build())
-                    .subscribe(BiConsumer { result: Cmd.Result?,  throwable: Throwable->
-                        mOutPutChangedListener?.invoke(result)
+            session!!.submit(Cmd.builder("${Env.APQDir}/bin/${params.getParams()}").build())
+                    .subscribe({ result: Cmd.Result? ->
+                        onDone?.invoke(result,null)
                     })
+            onStarted?.invoke()
+
             try {
                 Thread.sleep(1000)
-                StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build())
-                monitorClient = Socket("127.0.0.1",profile.monitorPort)
+                Env.switchNetThread()
+                Socket("127.0.0.1",params.monitorPort).close()
             }catch (e: IOException){
                 e.printStackTrace()
-                mOutPutChangedListener?.invoke(Cmd.Result(null,1, listOf(""),listOf(e.toString())))
+                isRunning = false
+                onDone?.invoke(null,e)
+                mExceptionListener?.invoke(e)
             }
         }).start()
     }
 
-    fun stop(onDone: ((e: IOException?) -> Unit)?){
-        isRunning = false
-        if (session.isAlive.blockingGet()){
-            var exception: IOException? = null
-            try {
-                StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build())
-                if (monitorClient!!.isConnected) {
-                    monitorClient = Socket("127.0.0.1",profile.monitorPort)
-                }
-                val os = PrintWriter(monitorClient!!.getOutputStream())
-                os.println("quit")
-                os.flush()
-                monitorClient!!.close()
-            }catch (e: IOException){
-                e.printStackTrace()
-                exception = e
-            }
-            onDone?.invoke(exception)
-
-            //Log.i("VirtualMachineStopJob",if(result?.exitCode == 0) result.output.toString() else result?.errors?.toString())
+    fun stop(onDone: ((e: Exception?) -> Unit)?){
+        if (baseInfo.isNull){
+            onDone?.invoke(IOException("Object Not Found"))
+            return
         }
+        isRunning = false
+        var exception: Exception? = null
+        try {
+            Env.switchNetThread()
+            val monitorClient = Socket("127.0.0.1",baseInfo.profile.also { if (it == null) onDone?.invoke(IOException("Object Not Found")) }!!.monitorPort)
+
+            val os = PrintWriter(monitorClient.getOutputStream())
+            os.println("quit")
+            os.flush()
+            os.close()
+            monitorClient.close()
+        }catch (e: Exception){
+            e.printStackTrace()
+            exception = e
+            mExceptionListener?.invoke(e)
+        }
+        onDone?.invoke(exception)
+
+        //Log.i("VirtualMachineStopJob",if(result?.exitCode == 0) result.output.toString() else result?.errors?.toString())
     }
 
     private fun buildSession() = RxCmdShell.builder().root(true).open().blockingGet()
+
+    override fun equals(other: Any?): Boolean {
+        return other is VMObject && other.baseInfo == baseInfo && other.isRunning == isRunning
+    }
+
+    override fun hashCode(): Int {
+        var result = if (baseInfo.isNull) baseInfo.hashCode() else 0
+        result = 31 * result + (session?.hashCode() ?: 0)
+        result = 31 * result + (mExceptionListener?.hashCode() ?: 0)
+        result = 31 * result + isRunning.hashCode()
+        return result
+    }
 }

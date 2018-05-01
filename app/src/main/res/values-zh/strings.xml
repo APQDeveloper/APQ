@@ -88,5 +88,11 @@
     <string name="base_vm_error_content">详细信息如下:</string>
     <string name="user_dismiss">忽略</string>
     <string name="base_error_refreshing">无法刷新: 有虚拟机正在运行</string>
+    <string name="base_advanced_runing_options">高级运行选项</string>
+    <string name="base_object_not_found_title">虚拟机未找到</string>
+    <string name="base_object_not_found">文件名为%s的虚拟机出现错误</string>
+    <string name="user_console_title">控制台</string>
+    <string name="user_console_subtitle">用qemu命令控制虚拟机以实现一些高级操作</string>
+    <string name="base_vm_running_snackbar">虚拟机运行在%s %s</string>
 
 </resources>

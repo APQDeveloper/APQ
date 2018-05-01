@@ -8,6 +8,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.DialogInterface
+import android.os.StrictMode
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
@@ -40,6 +41,7 @@ object Env {
     fun makeErrorDialog(context: Context,e: String,isSerious: Boolean = false){
         val dialog = AlertDialog.Builder(context)
 
+        dialog.setCancelable(!isSerious)
         dialog.setMessage(context.getString(R.string.base_error,e))
         dialog.setNegativeButton(R.string.user_close,{dialogInterface, which ->  (context as Activity).finish()})
         if (!isSerious)
@@ -160,4 +162,6 @@ object Env {
         val result = Cmd.builder("md5sum -c ${md5File.path}").execute(session)
         return result.exitCode == 0
     }
+
+    fun switchNetThread() = StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build())
 }

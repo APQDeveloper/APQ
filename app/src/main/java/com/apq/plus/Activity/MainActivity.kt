@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.support.design.widget.NavigationView
@@ -23,11 +24,10 @@ import com.apq.plus.Env
 
 import com.apq.plus.R
 import com.apq.plus.Utils.Differ
-import com.apq.plus.Utils.VMProfile
+import com.apq.plus.Utils.VMCompat
 import com.apq.plus.VMObject
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
-import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import jp.wasabeef.recyclerview.animators.FadeInAnimator
 
@@ -37,14 +37,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var fab: FloatingActionButton
     private var mainAdapter: VMAdapter? = null
     private var VMList = ArrayList<VMObject>()
-    private val isAnyVMRunning: Boolean
-    get(){
-        VMList.forEach {
-            if (it.isRunning)
-                return true
-        }
-        return false
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,10 +47,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         recyclerView.itemAnimator = FadeInAnimator()
         fab = findViewById(R.id.fab)
 
-        fab.setOnClickListener {
+        fun newEditor(){
             val intent = Intent(this,VMEditActivity::class.java)
+            intent.putExtra("dataToEdit","new:${getNewID()}")
             startActivityForResult(intent,0)
         }
+        fab.setOnClickListener {
+            newEditor()
+        }
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState > 0) {
+                    fab.hide()
+                } else {
+                    fab.show()
+                }
+            }
+        })
 
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
@@ -68,44 +74,43 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val refresh : SwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
         refresh.setColorSchemeColors(resources.getColor(R.color.colorAccent))
         refresh.setOnRefreshListener {
-            if (!isAnyVMRunning) {
-                Thread({
-                    Thread.sleep(300)
-                    refreshProfileData()
-                    refresh.isRefreshing = false
-                }).start()
-            }
-            else{
-                Snackbar.make(fab,R.string.base_error_refreshing,Snackbar.LENGTH_LONG).show()
+            Thread({
+                Thread.sleep(300)
+                refreshProfileData()
                 refresh.isRefreshing = false
-            }
+            }).start()
         }
 
         if (mainAdapter != null){
             mainAdapter!!.setItemOnClickListener {
-                val intent = Intent(this,VMEditActivity::class.java)
-                intent.putExtra("dataToEdit",it.profile.toString())
-                Log.i("VM Editor","Start editor by json.")
-                startActivityForResult(intent,0)
+                DetailedBottomSheetDialog(this,it).show()
             }
 
-            mainAdapter!!.setStartListener {
-                it.setOutPutChangedListener {
-                    if (it!=null){
-                        if (it.errors.size > 0){
-                            runOnUiThread {
-                                Env.makeVMErrorDialog(this,it.errors)
-                            }
-                        }
+            mainAdapter!!.setStartListener {vm,onDone ->
+                vm.setExceptionListener {
+                    runOnUiThread {
+                        Env.makeVMErrorDialog(this, listOf(it.toString()))
                     }
                 }
-                it.run()
+                vm.run({
+                    runOnUiThread {
+                        Snackbar.make(fab,getString(R.string.base_vm_running_snackbar,"VNC","127.0.0.1:${vm.baseInfo.id.toString()}"),Snackbar.LENGTH_LONG).show()
+                        onDone.invoke()
+                    }
+                },{r,e ->
+                    runOnUiThread{
+                        onDone.invoke()
+                    }
+                })
             }
-            mainAdapter!!.setStopListener {
-                it.stop({r ->
-                    Log.i("VirtualMachineStopJob","Stopping ${it.profile.name}: ${if (r == null) "Done" else "Failed"}.")
+            mainAdapter!!.setStopListener {vm,onDone ->
+                vm.stop({r ->
+                    Log.i("VirtualMachineStopJob","Stopping ${vm.baseInfo.name}: ${if (r == null) "Done" else "Failed"}.")
                     if (r != null){
                         Env.makeErrorDialog(this,r.toString())
+                    }
+                    runOnUiThread {
+                        onDone.invoke()
                     }
                 })
             }
@@ -116,7 +121,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //如果尚未展示欢迎标语
             TapTargetView.showFor(this, TapTarget
                     .forView(fab,getString(R.string.base_welcome_t),getString(R.string.base_welcome_s))
-                    .transparentTarget(true))
+                    .transparentTarget(true)
+            ,object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView?) {
+                    Handler().postDelayed({
+                        newEditor()
+                    },300)
+                    view!!.dismiss(false)
+                }
+            })
             val e = sp.edit()
             e.putBoolean("isWelcomeShown",true)
             e.apply()
@@ -128,9 +141,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         VMList.clear()
         Env.VMProfileDir.listFiles()?.forEach {
             if (it.isFile && it.canRead()){
-                val gson = Gson()
                 try {
-                    VMList.add(VMObject(gson.fromJson(it.readText(),VMProfile::class.java),VMList.size))
+                    VMList.add(VMObject(VMCompat.getBaseInfo(it.readText(),it)))
                 }catch (e: JsonSyntaxException){
                     e.printStackTrace()
                     Env.makeErrorDialog(this,e.toString())
@@ -152,6 +164,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }, old,VMList, mainAdapter!!)
             }
         }
+    }
+
+    private fun getNewID(): Int{
+        val tmp = VMList
+        var max: Int = 0
+        tmp.forEach {
+            if (!it.baseInfo.isNull && it.baseInfo.id > max)
+                max = it.baseInfo.id
+        }
+        for (i in 0 .. max){
+            if (tmp.any { !it.baseInfo.isNull && it.baseInfo.id != i }){
+                return i
+            }
+        }
+        return max +1
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
