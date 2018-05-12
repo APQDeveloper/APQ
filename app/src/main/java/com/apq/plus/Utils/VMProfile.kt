@@ -21,8 +21,8 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
     enum class Units{
         B,KB,MB,GB;
 
-        fun isBigger(than: Units): Boolean =
-                when (than){
+        fun isBigger(other: Units): Boolean =
+                when (other){
                     B -> this!= B
                     KB -> this!= B &&this!=KB
                     MB -> this!= B &&this!=KB&&this!=MB

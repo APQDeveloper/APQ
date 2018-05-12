@@ -6,11 +6,11 @@ import eu.darken.rxshell.cmd.RxCmdShell
 import java.io.IOException
 import java.io.PrintWriter
 import java.net.Socket
-import android.os.StrictMode
 import com.apq.plus.Utils.VMCompat
+import java.io.File
 
 
-class VMObject(val baseInfo: VMCompat.BaseInfo) {
+class VMObject(var baseInfo: VMCompat.BaseInfo) {
     var session: RxCmdShell.Session? = null
 
     private var mExceptionListener: ((e: Exception) -> Unit)? = null
@@ -28,6 +28,13 @@ class VMObject(val baseInfo: VMCompat.BaseInfo) {
         }catch (e: Exception){
             false
         }
+    }
+
+    fun updateBaseInfo(){
+        if (baseInfo.file == null)
+            return
+        val file = File(baseInfo.file)
+        baseInfo = VMCompat.getBaseInfo(file.readText(),file)
     }
 
     init {

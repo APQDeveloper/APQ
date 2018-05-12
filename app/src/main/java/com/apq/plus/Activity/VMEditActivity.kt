@@ -26,6 +26,7 @@ import android.widget.*
 import com.apq.plus.Adapter.DiskAdapter
 import com.apq.plus.Base.BaseActivity
 import com.apq.plus.Env
+import com.apq.plus.Env.showMemoryEditDialog
 import com.apq.plus.R
 import com.apq.plus.Utils.*
 import com.apq.plus.View.MaterialItemView
@@ -40,7 +41,8 @@ import java.io.File
 class VMEditActivity : BaseActivity() {
 
     //Data & Result
-    var result: VMProfile = VMProfile("","", VMProfile.CPU(VMProfile.CPU.FRAMEWORK_X86, "base"),null, VMProfile.DiskHolder.emptyObject, VMProfile.BootFrom(VMProfile.DiskHolder.CD), VMProfile.Memory(64.toDouble(), VMProfile.Units.MB),null,true)
+    private fun emptyResult() = VMProfile("","", VMProfile.CPU(VMProfile.CPU.FRAMEWORK_X86, "base"),null, VMProfile.DiskHolder.emptyObject, VMProfile.BootFrom(VMProfile.DiskHolder.CD), VMProfile.Memory(64.toDouble(), VMProfile.Units.MB),null,true)
+    var result: VMProfile = emptyResult()
     private var isSaving = false
     //View & Adapter
     private lateinit var diskAdapter: DiskAdapter
@@ -54,11 +56,6 @@ class VMEditActivity : BaseActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         showTapTargets(1)
         init()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.i("VM Editor","Recycling data...")
     }
 
     private fun showTapTargets(index: Int){
@@ -293,7 +290,7 @@ class VMEditActivity : BaseActivity() {
         }
         updateMemory()
         memoryChoice.setOnClickListener {
-            showMemoryEditDialog(this,result.memory,{ s: VMProfile.Memory?, result: Result ->
+            showMemoryEditDialog(this,result.memory,VMProfile.Memory(Env.getTotalMemorySize(this)),{ s: VMProfile.Memory?, result: Result ->
                 if (result == Result.OK){
                     this.result.memory = s!!
                     updateMemory()
@@ -361,83 +358,6 @@ class VMEditActivity : BaseActivity() {
         else{
             Env.makeErrorDialog(this,getString(R.string.base_error_vm_writing_failed))
         }
-    }
-
-    /**
-     * 内存编辑框
-     *
-     */
-    private fun showMemoryEditDialog(context: Context, default: VMProfile.Memory, onPostResult: (VMProfile.Memory?, Result) -> Unit){
-        val m: VMProfile.Memory = VMProfile.Memory(default.size,default.unit)
-        val dialog = AlertDialog.Builder(context)
-        dialog.setTitle(R.string.base_memory)
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_memory,null)
-        dialog.setView(view)
-        //控件
-        val memoryUnit = view.findViewById<Spinner>(R.id.memory_unit)
-        val memorySeekBar = view.findViewById<BubbleSeekBar>(R.id.memory_seek_bar)
-        val memorySize = Env.getTotalMemorySize(this)
-        val adapter = ArrayAdapter<String>(context,android.R.layout.simple_spinner_item,
-                listOf(context.getString(R.string.base_units_raw_b),context.getString(R.string.base_units_raw_kb),context.getString(R.string.base_units_raw_mb),context.getString(R.string.base_units_raw_gb)))
-        memoryUnit.adapter = adapter
-        memoryUnit.setSelection(when(m.unit){
-            VMProfile.Units.B -> 0
-            VMProfile.Units.KB -> 1
-            VMProfile.Units.MB -> 2
-            VMProfile.Units.GB -> 3
-        })
-        fun updateViews() {
-            val memory = Env.convert(VMProfile.Memory(memorySize), m.unit)
-            memorySeekBar.configBuilder
-                    .showSectionMark()
-                    .showSectionText()
-                    .showThumbText()
-                    .max(memory.size.toFloat())
-                    .min(Env.convert(VMProfile.Memory(4.toDouble()), m.unit).size.toFloat())
-                    .progress(m.size.toFloat())
-                    .build()
-        }
-        memoryUnit.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                m.updateUnit(VMProfile.Units.MB)
-                updateViews()
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                m.updateUnit(
-                    when (position){
-                        0 -> VMProfile.Units.B
-                        1 -> VMProfile.Units.KB
-                        2 -> VMProfile.Units.MB
-                        3 -> VMProfile.Units.GB
-                        else -> VMProfile.Units.MB
-                    })
-
-                updateViews()
-            }
-
-        }
-        memorySeekBar.onProgressChangedListener = object : BubbleSeekBar.OnProgressChangedListener{
-            override fun onProgressChanged(bubbleSeekBar: BubbleSeekBar?, progress: Int, progressFloat: Float) {
-                m.size = progressFloat.toDouble()
-            }
-
-            override fun getProgressOnActionUp(bubbleSeekBar: BubbleSeekBar?, progress: Int, progressFloat: Float) {
-            }
-
-            override fun getProgressOnFinally(bubbleSeekBar: BubbleSeekBar?, progress: Int, progressFloat: Float) {
-
-            }
-
-        }
-        updateViews()
-        dialog.setPositiveButton(R.string.base_ok,{ _: DialogInterface, _: Int ->
-            onPostResult(m,Result.OK)
-        })
-        dialog.setNegativeButton(R.string.base_cancel,{ _: DialogInterface, _: Int ->
-            onPostResult(null,Result.CANCELED)
-        })
-        dialog.show()
     }
 
     /**

@@ -87,6 +87,7 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
     }
 
     fun notifyDataChanged(){
+        select(-1)
         holders.clear()
         notifyDataSetChanged()
     }
@@ -110,8 +111,7 @@ abstract class FileAdapter(var dest: File,val blocker: String = "") : RecyclerVi
 
     fun refresh(activity: Activity){
         Thread({
-            selectedItem = null
-            mSelectStateChangeListener!!(null,States.UNSELECTED)
+            select(-1)
             mList = sort(dest)
             activity.runOnUiThread {
                 notifyDataChanged()

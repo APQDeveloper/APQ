@@ -6,6 +6,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="cardBackgroundColor">@color/cardview_light_background</item>
+        <item name="cardElevation">@dimen/cardview_default_elevation</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -23,4 +24,7 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark"/>
 
+    <style name="AppTheme.AppBarOverlay.Light" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="AppTheme.PopupOverlay.Light" parent="ThemeOverlay.AppCompat.Dark"/>
 </resources>

@@ -94,5 +94,15 @@
     <string name="user_console_title">控制台</string>
     <string name="user_console_subtitle">用qemu命令控制虚拟机以实现一些高级操作</string>
     <string name="base_vm_running_snackbar">虚拟机运行在%s %s</string>
+    <string name="base_activity_console">控制台</string>
+    <string name="base_running_status">运行状态</string>
+    <string name="base_status_running">运行中</string>
+    <string name="base_status_stopped">已停止</string>
+    <string name="base_file_choosing">文件选择</string>
+    <string name="user_create">创建%s</string>
+    <string name="user_new_disk_file">新的磁盘文件</string>
+    <string name="user_file_name_entering">文件名(回车以确认)</string>
+    <string name="base_creating">正在创建%s…</string>
+    <string name="message_no_vm">找不到虚拟机</string>
 
 </resources>

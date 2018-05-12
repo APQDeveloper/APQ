@@ -19,6 +19,9 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.widget.LinearLayout
 import com.apq.plus.Adapter.VMAdapter
 import com.apq.plus.Env
 
@@ -37,6 +40,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var fab: FloatingActionButton
     private var mainAdapter: VMAdapter? = null
     private var VMList = ArrayList<VMObject>()
+    private var detailedBottomSheetDialog: DetailedBottomSheetDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +87,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (mainAdapter != null){
             mainAdapter!!.setItemOnClickListener {
-                DetailedBottomSheetDialog(this,it).show()
+                detailedBottomSheetDialog = DetailedBottomSheetDialog(this,it)
+                detailedBottomSheetDialog!!.show()
+
+                detailedBottomSheetDialog!!.setOnDismissedListener {
+                    if (it) refreshProfileData()
+                }
             }
 
             mainAdapter!!.setStartListener {vm,onDone ->
@@ -163,6 +172,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mainAdapter!!.mList = VMList
                 }, old,VMList, mainAdapter!!)
             }
+            //额外一张标示“没有虚拟机”的卡片
+            val card: LinearLayout = findViewById(R.id.noVM)
+            if (VMList.size == 0){
+                if (card.visibility == View.INVISIBLE) {
+                    val ani = AlphaAnimation(0f, 1f)
+                    ani.duration = 300
+                    card.startAnimation(ani)
+                }
+                card.visibility = View.VISIBLE
+            }
+            else{
+                if (card.visibility == View.VISIBLE) {
+                    val ani = AlphaAnimation(1f, 0f)
+                    ani.duration = 300
+                    card.startAnimation(ani)
+                    ani.setAnimationListener(object : Animation.AnimationListener{
+                        override fun onAnimationRepeat(animation: Animation?) {
+                        }
+
+                        override fun onAnimationEnd(animation: Animation?) {
+                            card.visibility = View.INVISIBLE
+                        }
+
+                        override fun onAnimationStart(animation: Animation?) {
+                        }
+
+                    })
+                }
+                else{
+                    card.visibility = View.INVISIBLE
+                }
+            }
         }
     }
 
@@ -178,12 +219,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return i
             }
         }
-        return max +1
+        return if (max == 0) max else max +1
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 0 && resultCode == Activity.RESULT_OK){
             refreshProfileData()
+            detailedBottomSheetDialog?.dismiss()
         }
     }
 

@@ -7,11 +7,11 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/black">
-        <android.support.design.widget.CollapsingToolbarLayout
+        android:background="@android:color/black"
+        android:theme="@style/AppTheme.AppBarOverlay.Light">
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:titleEnabled="false">
+            android:layout_height="match_parent">
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
@@ -25,11 +25,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/actionBarSize"
                 android:id="@+id/toolbar"
-                android:theme="@style/ThemeOverlay.AppCompat.Light"
-                app:layout_collapseMode="pin"/>
-        </android.support.design.widget.CollapsingToolbarLayout>
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:layout_collapseMode="pin">
+                <android.support.v7.widget.ActionMenuView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/action_menu"
+                    android:layout_gravity="end"
+                    android:foregroundTint="@color/colorPrimary"/>
+            </android.support.v7.widget.Toolbar>
+        </FrameLayout>
     </android.support.design.widget.AppBarLayout>
-    <android.support.v4.widget.NestedScrollView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -41,55 +48,98 @@
             android:orientation="vertical">
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="74dp"
+                android:layout_height="wrap_content"
                 app:cardCornerRadius="0dp">
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:paddingTop="@dimen/card_padding"
                     android:paddingBottom="@dimen/card_padding"
                     android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:layout_gravity="center">
-                    <android.support.v7.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/ic_info_primary"
-                        android:id="@+id/ic_info"
-                        android:layout_centerVertical="true"/>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    android:paddingEnd="12dp">
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
                         android:orientation="vertical"
-                        android:layout_toEndOf="@id/ic_info"
-                        android:layout_marginStart="12dp"
-                        android:layout_centerVertical="true">
-                        <TextView
-                            android:layout_width="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="4dp">
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:id="@+id/name"
-                            android:text="@string/base_name"
-                            android:textColor="@android:color/black"
-                            android:textSize="22sp"/>
-                        <TextView
-                            android:layout_width="match_parent"
+                            app:srcCompat="@drawable/ic_info_primary"
+                            android:id="@+id/ic_info"
+                            android:layout_centerVertical="true"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:id="@+id/description"
-                            android:text="@string/base_description"
-                            android:textSize="18sp"/>
-                    </LinearLayout>
-                    <android.support.v7.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_toEndOf="@id/ic_info"
+                            android:layout_marginStart="12dp"
+                            android:layout_centerVertical="true">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/name"
+                                android:text="@string/base_name"
+                                android:textColor="@android:color/black"
+                                android:textSize="22sp"/>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/description"
+                                android:text="@string/base_description"
+                                android:textSize="18sp"/>
+                        </LinearLayout>
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/edit"
+                            app:srcCompat="@drawable/ic_edit_primary"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentEnd="true"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+                    </RelativeLayout>
+
+                    <include layout="@layout/divider"/>
+                    <!-- Running Status -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/edit"
-                        app:srcCompat="@drawable/ic_edit_primary"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentEnd="true"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"/>
-                </RelativeLayout>
+                        android:layout_marginTop="@dimen/card_padding"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/card_padding">
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/ic_status"
+                            app:srcCompat="@drawable/ic_stop_primary"
+                            android:layout_centerVertical="true"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_toEndOf="@id/ic_status"
+                            android:layout_marginStart="12dp"
+                            android:layout_centerVertical="true">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/base_running_status"
+                                android:textColor="@android:color/black"
+                                android:textSize="22sp"/>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/text_status"
+                                android:text="@string/base_status_stopped"
+                                android:textSize="18sp"
+                                android:textColor="@android:color/black"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -101,28 +151,30 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="@dimen/card_padding"
-                    android:orientation="vertical"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:padding="12dp"
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/base_advanced_runing_options"
                         android:textSize="22sp"
-                        android:textColor="@android:color/black"/>
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="2dp"/>
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/advanced_console">
+                        android:id="@+id/advanced_console"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
                         <android.support.v7.widget.AppCompatImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/console_icon"
                             android:layout_centerVertical="true"
-                            app:srcCompat="@drawable/ic_console_black"
-                            android:layout_margin="8dp"/>
+                            app:srcCompat="@drawable/ic_console_primary"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="20dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -143,6 +195,6 @@
                 </LinearLayout>
             </android.support.v7.widget.CardView>
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </ScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

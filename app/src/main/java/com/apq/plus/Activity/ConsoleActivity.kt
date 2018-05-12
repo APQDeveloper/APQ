@@ -91,7 +91,8 @@ class ConsoleActivity : AppCompatActivity() {
 
     @SuppressLint("RestrictedApi")
     private fun initToolbar(){
-        supportActionBar!!.setDefaultDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setTitle(R.string.base_activity_console)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
