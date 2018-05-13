@@ -178,7 +178,7 @@ object Env {
             return false
         val session = RxCmdShell.builder().open().blockingGet()
         session.submit(Cmd.builder("cd ${target.parent}").build()).blockingGet()
-        val result = Cmd.builder("md5sum -c ${md5File.path}").execute(session)
+        val result = Cmd.builder("${APQDir.path}/bin/toybox md5sum -c ${md5File.path}").execute(session)
         return result.exitCode == 0
     }
 

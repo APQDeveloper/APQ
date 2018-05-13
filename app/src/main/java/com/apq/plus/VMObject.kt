@@ -55,7 +55,7 @@ class VMObject(var baseInfo: VMCompat.BaseInfo) {
         }
         Log.d("APQ","Use directory ${Env.APQDir}")
         Thread({
-            session!!.submit(Cmd.builder("${Env.APQDir}/bin/${params.getParams()}").build())
+            session!!.submit(Cmd.builder("cd ${Env.APQDir}/bin/ && ./${params.getParams()}").build())
                     .subscribe({ result: Cmd.Result? ->
                         onDone?.invoke(result,null)
                     })

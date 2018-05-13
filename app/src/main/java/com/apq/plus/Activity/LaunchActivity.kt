@@ -127,8 +127,8 @@ class LaunchActivity : BaseActivity() {
 
                 loadingMsg.setText(R.string.progress_msg_proofread)
                 Thread({
+                    Cmd.builder("chmod -R +x ${Env.APQDir}").execute(RxCmdShell.builder().build())
                     if (proofreadAPQ()) {
-                        Cmd.builder("chmod -R +x ${Env.APQDir}").execute(RxCmdShell.builder().build())
                         runOnUiThread{
                             loadingMsg.setText(R.string.progress_msg_done)
                         }
