@@ -27,6 +27,8 @@ public class TextInfo{
             shapeText = ' ';
             this.shapeImage = shapeImage;
         }
+        else if (!title.isEmpty())
+            this.shapeText = upperLetter(title.charAt(0));
     }
 
     public TextInfo(String title,String subtitle,char shapeText){

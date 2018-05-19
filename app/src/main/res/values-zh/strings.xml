@@ -104,5 +104,8 @@
     <string name="user_file_name_entering">文件名(回车以确认)</string>
     <string name="base_creating">正在创建%s…</string>
     <string name="message_no_vm">找不到虚拟机</string>
+    <string name="base_display">显示</string>
+    <string name="user_display_method">显示方式</string>
+    <string name="base_choose_display">选择其中一项</string>
 
 </resources>

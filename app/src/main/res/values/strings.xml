@@ -109,4 +109,9 @@
     <string name="user_file_name_entering">File Name (Enter To Confirm)</string>
     <string name="base_creating">Creating %s …</string>
     <string name="message_no_vm">No VM Found</string>
+    <string name="base_display">Display</string>
+    <string name="user_display_method">Display Method</string>
+    <string name="base_display_vnc" translatable="false">VNC</string>
+    <string name="base_display_xsdl" translatable="false">X SDL</string>
+    <string name="base_choose_display">Choose one of these methods</string>
 </resources>

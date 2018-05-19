@@ -90,8 +90,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 detailedBottomSheetDialog = DetailedBottomSheetDialog(this,it)
                 detailedBottomSheetDialog!!.show()
 
-                detailedBottomSheetDialog!!.setOnDismissedListener {
-                    if (it) refreshProfileData()
+                detailedBottomSheetDialog!!.setOnDismissedListener { isDataChanged ->
+                    if (isDataChanged) refreshProfileData()
+                    detailedBottomSheetDialog!!.recycle()
                 }
             }
 
@@ -103,12 +104,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 vm.run({
                     runOnUiThread {
-                        Snackbar.make(fab,getString(R.string.base_vm_running_snackbar,"VNC","127.0.0.1:${vm.baseInfo.id.toString()}"),Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(fab,getString(R.string.base_vm_running_snackbar,if(vm.baseInfo.useVNC) getString(R.string.base_display_vnc) else getString(R.string.base_display_xsdl),"127.0.0.1:${vm.baseInfo.id}"),Snackbar.LENGTH_LONG).show()
                         onDone.invoke()
                     }
                 },{r,e ->
                     runOnUiThread{
                         onDone.invoke()
+                        if (r != null && (r.exitCode != 0 || r.errors.size>0)){
+                            Env.makeVMErrorDialog(this,r.errors)
+                        }
                     }
                 })
             }
@@ -151,7 +155,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Env.VMProfileDir.listFiles()?.forEach {
             if (it.isFile && it.canRead()){
                 try {
-                    VMList.add(VMObject(VMCompat.getBaseInfo(it.readText(),it)))
+                    VMList.add(
+                            VMObject(
+                                    VMCompat.getBaseInfo(it.readText(),it)))
                 }catch (e: JsonSyntaxException){
                     e.printStackTrace()
                     Env.makeErrorDialog(this,e.toString())
@@ -225,7 +231,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 0 && resultCode == Activity.RESULT_OK){
             refreshProfileData()
-            detailedBottomSheetDialog?.dismiss()
+            if (detailedBottomSheetDialog != null && !detailedBottomSheetDialog!!.isNullOrRecycled)
+                detailedBottomSheetDialog!!.dismiss()
         }
     }
 

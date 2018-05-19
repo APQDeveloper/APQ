@@ -21,12 +21,15 @@ import com.apq.plus.VMObject
 import java.io.File
 
 class DetailedBottomSheetDialog(val context: Context,val vm: VMObject) {
-    private val dialog = BottomSheetDialog(context)
-    private val contentView: View = (context as Activity).layoutInflater.inflate(R.layout.bottom_sheet_dialog,null)
+    private var dialog: BottomSheetDialog? = BottomSheetDialog(context)
+    private var contentView: View? = (context as Activity).layoutInflater.inflate(R.layout.bottom_sheet_dialog,null)
     private var mOnDismissedListener: ((isDataChanged: Boolean) -> Unit)? = null
 
+    val isNullOrRecycled: Boolean
+    get() = dialog == null || contentView == null
+
     init {
-        dialog.setContentView(contentView)
+        dialog!!.setContentView(contentView)
     }
 
     fun setOnDismissedListener(l: ((isDataChanged: Boolean) -> Unit)?){
@@ -37,14 +40,17 @@ class DetailedBottomSheetDialog(val context: Context,val vm: VMObject) {
      * @return 更新数据调用的方法
      */
     fun show(){
-        val toolbar: Toolbar = contentView.findViewById(R.id.toolbar)
-        val actionMenu: ActionMenuView = contentView.findViewById(R.id.action_menu)
-        val icon: AppCompatImageView = contentView.findViewById(R.id.icon)
-        val name: TextView = contentView.findViewById(R.id.name)
-        val description: TextView = contentView.findViewById(R.id.description)
-        val console: RelativeLayout = contentView.findViewById(R.id.advanced_console)
-        val statusIcon: AppCompatImageView = contentView.findViewById(R.id.ic_status)
-        val statusText: TextView = contentView.findViewById(R.id.text_status)
+        if (dialog == null || contentView == null){
+            throw NullPointerException("Null pointer or data recycled!")
+        }
+        val toolbar: Toolbar = contentView!!.findViewById(R.id.toolbar)
+        val actionMenu: ActionMenuView = contentView!!.findViewById(R.id.action_menu)
+        val icon: AppCompatImageView = contentView!!.findViewById(R.id.icon)
+        val name: TextView = contentView!!.findViewById(R.id.name)
+        val description: TextView = contentView!!.findViewById(R.id.description)
+        val console: RelativeLayout = contentView!!.findViewById(R.id.advanced_console)
+        val statusIcon: AppCompatImageView = contentView!!.findViewById(R.id.ic_status)
+        val statusText: TextView = contentView!!.findViewById(R.id.text_status)
 
         val profile = vm.baseInfo
         if (profile.isNull){
@@ -98,7 +104,7 @@ class DetailedBottomSheetDialog(val context: Context,val vm: VMObject) {
             dismiss()
         }
 
-        (contentView.findViewById<AppCompatImageView>(R.id.edit)).setOnClickListener {
+        (contentView!!.findViewById<AppCompatImageView>(R.id.edit)).setOnClickListener {
             val intent = Intent(context,VMEditActivity::class.java)
             intent.putExtra("dataToEdit", File(profile.file).readText())
             Log.i("VM Editor","Start editor by json.")
@@ -125,11 +131,18 @@ class DetailedBottomSheetDialog(val context: Context,val vm: VMObject) {
             return@setOnMenuItemClickListener true
         }
 
-        dialog.show()
+        dialog!!.show()
     }
 
     fun dismiss(){
-        dialog.dismiss()
+        if (dialog == null)
+            throw NullPointerException("Data recycled!")
+        dialog!!.dismiss()
         mOnDismissedListener?.invoke(false)
+    }
+
+    fun recycle(){
+        contentView = null
+        dialog = null
     }
 }

@@ -33,7 +33,6 @@ import com.apq.plus.View.MaterialItemView
 import com.apq.plus.View.TextInfo
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
-import com.xw.repo.BubbleSeekBar
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator
 import top.wefor.circularanim.CircularAnim
 import java.io.File
@@ -210,12 +209,12 @@ class VMEditActivity : BaseActivity() {
         bootError.setOnClickListener {
             bootErrorDialog.show()
         }
-        val bottomSheetDialog = BottomSheetDialog(this)
-        bottomSheetDialog.setContentView(R.layout.layout_boot_choose)
+        val bootSelectDialog = BottomSheetDialog(this)
+        bootSelectDialog.setContentView(R.layout.layout_boot_choose)
         //控件
-        val cdChoice = bottomSheetDialog.findViewById<MaterialItemView>(R.id.to_choose_cd)
-        val hardDiskChoice = bottomSheetDialog.findViewById<MaterialItemView>(R.id.to_choose_hard_disk)
-        val floppyDiskChoice = bottomSheetDialog.findViewById<MaterialItemView>(R.id.to_choose_floppy_disk)
+        val cdChoice = bootSelectDialog.findViewById<MaterialItemView>(R.id.to_choose_cd)
+        val hardDiskChoice = bootSelectDialog.findViewById<MaterialItemView>(R.id.to_choose_hard_disk)
+        val floppyDiskChoice = bootSelectDialog.findViewById<MaterialItemView>(R.id.to_choose_floppy_disk)
 
         fun updateSelection(){
             cdChoice!!.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE, TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_disk))
@@ -238,26 +237,26 @@ class VMEditActivity : BaseActivity() {
         cdChoice!!.setOnClickListener {
             bootSelection.tag = VMProfile.DiskHolder.CD
             updateSelection()
-            bottomSheetDialog.dismiss()
+            bootSelectDialog.dismiss()
         }
         hardDiskChoice!!.setOnClickListener {
             bootSelection.tag = VMProfile.DiskHolder.HardDisk
             updateSelection()
-            bottomSheetDialog.dismiss()
+            bootSelectDialog.dismiss()
         }
         floppyDiskChoice!!.setOnClickListener {
             bootSelection.tag = VMProfile.DiskHolder.FloppyDisk
             updateSelection()
-            bottomSheetDialog.dismiss()
+            bootSelectDialog.dismiss()
         }
 
         bootSelection.setOnClickListener {
-            bottomSheetDialog.show()
+            bootSelectDialog.show()
             //更新选项
             updateSelection()
         }
         //取消时更新bootSelection
-        bottomSheetDialog.setOnDismissListener {
+        bootSelectDialog.setOnDismissListener {
             bootSelection.set(getTextInfoByBootFrom(result.bootFrom))
             updateBootError()
         }
@@ -299,6 +298,41 @@ class VMEditActivity : BaseActivity() {
                 }
             })
         }
+
+        //显示选项
+        val displayMethod: MaterialItemView = findViewById(R.id.display_method)
+        fun updateDisplaySelection() = displayMethod.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE,if (result.useVnc) getString(R.string.base_display_vnc) else getString(R.string.base_display_xsdl),if (result.useVnc) 'V' else 'X'))
+        updateDisplaySelection()
+
+        val displaySelectDialog = BottomSheetDialog(this)
+        displaySelectDialog.setContentView(R.layout.layout_display_method_select)
+        val displayVNC: MaterialItemView = displaySelectDialog.findViewById(R.id.to_choose_vnc)!!
+        val displayXSDL: MaterialItemView = displaySelectDialog.findViewById(R.id.to_choose_xsdl)!!
+        fun updateDisplaySelectionStatus(){
+            if (result.useVnc){
+                displayVNC.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE,TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_check))
+                displayXSDL.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE,TextInfo.DO_NOT_CHANGE_TITLE,'X'))
+            }
+            else{
+                displayVNC.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE,TextInfo.DO_NOT_CHANGE_TITLE,'V'))
+                displayXSDL.set(TextInfo(TextInfo.DO_NOT_CHANGE_TITLE,TextInfo.DO_NOT_CHANGE_TITLE,R.drawable.ic_check))
+            }
+        }
+        displayVNC.setOnClickListener {
+            result.useVnc = true
+            updateDisplaySelection()
+            displaySelectDialog.dismiss()
+        }
+        displayXSDL.setOnClickListener {
+            result.useVnc = false
+            updateDisplaySelection()
+            displaySelectDialog.dismiss()
+        }
+        displayMethod.setOnClickListener {
+            updateDisplaySelectionStatus()
+            displaySelectDialog.show()
+        }
+
         /* 保存按钮 */
         val fab = findViewById<FloatingActionButton>(R.id.fab_save)
         fab.setOnClickListener {

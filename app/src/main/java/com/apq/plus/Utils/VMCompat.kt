@@ -2,12 +2,10 @@ package com.apq.plus.Utils
 
 import android.graphics.Bitmap
 import com.google.gson.Gson
-import com.google.gson.JsonNull
 import com.google.gson.JsonSyntaxException
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
-import java.io.IOException
 import java.math.BigDecimal
 
 /**
@@ -57,19 +55,30 @@ object VMCompat {
         val isNull: Boolean
         get() = id == -1 || (name.isEmpty() && description.isEmpty())
 
-        val totalSize: BigDecimal
+        val useVNC: Boolean
+        get() = try {
+            JSONObject(File(file).readText())["useVnc"].toString().toBoolean()
+        }catch (e: Exception){
+            e.printStackTrace()
+            false
+        }
+        val diskHolder: VMProfile.DiskHolder?
         get() {
-            if (file == null) return 0.toBigDecimal()
-            var text: String? = null
+            if (file == null) return null
+            val text: String?
             try {
                 text = JSONObject(File(file).readText())["disks"].toString()
             }catch (e: JSONException){
                 e.printStackTrace()
+                return null
             }
 
-            val holder: VMProfile.DiskHolder= Gson().fromJson(text,VMProfile.DiskHolder::class.java)
+            return Gson().fromJson(text,VMProfile.DiskHolder::class.java)
+        }
+        val totalSize: BigDecimal
+        get() {
             var result = 0.toBigDecimal()
-            holder.forEach { result += FileUtils.getFileSize(it.diskFile!!,FileUtils.FileSizeUnits.MB) }
+            diskHolder?.forEach { result += FileUtils.getFileSize(it.diskFile!!,FileUtils.FileSizeUnits.MB) }
             return result
         }
 

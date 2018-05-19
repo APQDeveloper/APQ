@@ -29,8 +29,8 @@ import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import java.io.File
 import java.math.BigDecimal
+import java.math.MathContext
 import java.math.RoundingMode
-import java.util.*
 
 /**
  * Created by zhufu on 2/5/18.
@@ -160,18 +160,7 @@ object Env {
     }
     /* 获得系统架构 */
     val systemFramework : String?
-    get() {
-        val result = Cmd.builder("uname -a").execute(RxCmdShell.builder().build())
-        if (result.exitCode == 0){
-            val out = result.output.first()
-            for (i in out.length-1 downTo 0){
-                if (out[i] == ' '){
-                    return out.substring(i+1)
-                }
-            }
-        }
-        return null
-    }
+    get() = System.getProperty("os.arch")
 
     fun checkMD5(target: File?,md5File: File?): Boolean{
         if (target == null || md5File == null)
@@ -196,8 +185,7 @@ object Env {
         fun create(format: Format,size: VMProfile.Memory): Cmd.Result?{
             if (f.exists() && f.isDirectory)
                 if(!f.delete()) return Cmd.Result(null,1,listOf("Unable to create file"),listOf("$f already exists!"))
-            val r = Cmd.builder("${APQDir.path}/bin/qemu-img create -f ${format.name} ${f.path} ${size.size}${size.unit.qemuName}").execute(RxCmdShell.builder().build())
-            return r
+            return Cmd.builder("${APQDir.path}/bin/qemu-img create -f ${format.name} ${f.path} ${size.size}${size.unit.qemuName}").execute(RxCmdShell.builder().build())
         }
     }
 
@@ -259,7 +247,7 @@ object Env {
         }
         memorySeekBar.onProgressChangedListener = object : BubbleSeekBar.OnProgressChangedListener{
             override fun onProgressChanged(bubbleSeekBar: BubbleSeekBar?, progress: Int, progressFloat: Float) {
-                m.size = progressFloat.toDouble()
+                m.size = BigDecimal(progressFloat.toString()).setScale(2,RoundingMode.HALF_UP).toDouble()
             }
 
             override fun getProgressOnActionUp(bubbleSeekBar: BubbleSeekBar?, progress: Int, progressFloat: Float) {

@@ -55,6 +55,10 @@ class VMObject(var baseInfo: VMCompat.BaseInfo) {
         }
         Log.d("APQ","Use directory ${Env.APQDir}")
         Thread({
+            if (!params.useVnc){
+                val r = session!!.submit(Cmd.builder("export DISPLAY=:${params.id}","export PLUSE_SERVER=tcp:127.0.0.1:4712").build()).blockingGet()
+                Log.i("XServer","Exporting process exits with code ${r.exitCode}")
+            }
             session!!.submit(Cmd.builder("cd ${Env.APQDir}/bin/ && ./${params.getParams()}").build())
                     .subscribe({ result: Cmd.Result? ->
                         onDone?.invoke(result,null)
@@ -103,7 +107,7 @@ class VMObject(var baseInfo: VMCompat.BaseInfo) {
     private fun buildSession() = RxCmdShell.builder().root(true).open().blockingGet()
 
     override fun equals(other: Any?): Boolean {
-        return other is VMObject && other.baseInfo == baseInfo && other.isRunning == isRunning
+        return other is VMObject && (other.baseInfo == baseInfo && other.isRunning == isRunning)
     }
 
     override fun hashCode(): Int {
