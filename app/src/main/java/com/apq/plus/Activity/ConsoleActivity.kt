@@ -7,6 +7,7 @@ import android.os.Looper
 import android.support.design.widget.FloatingActionButton
 import android.view.MenuItem
 import android.widget.TextView
+import com.apq.plus.Base.BaseActivity
 import com.apq.plus.Env
 import com.apq.plus.R
 import java.io.BufferedReader
@@ -15,7 +16,7 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
 
-class ConsoleActivity : AppCompatActivity() {
+class ConsoleActivity : BaseActivity() {
 
     private var port: Int = 4444
     lateinit var content: TextView

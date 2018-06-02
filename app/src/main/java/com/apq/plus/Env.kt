@@ -27,6 +27,7 @@ import com.apq.plus.Utils.VMProfile.Units.*
 import com.xw.repo.BubbleSeekBar
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
+import io.reactivex.Single
 import java.io.File
 import java.math.BigDecimal
 import java.math.MathContext
@@ -46,8 +47,10 @@ object Env {
         Log.i("Screen","With = $screenWidth, Height = $screenHeight")
     }
     //虚拟机
-    lateinit var APQDir: File
-    lateinit var VMProfileDir: File
+    val APQDir: File
+    get() = File("${Environment.getDataDirectory()}/data/com.apq.plus/files/${if (systemFramework!!.contains("arm")) "qemu32" else "qemu64"}")
+    val VMProfileDir: File
+    get() = File("${Environment.getDataDirectory()}/data/com.apq.plus/files/VMProfile")
 
     fun makeErrorDialog(context: Context,e: String,isSerious: Boolean = false){
         val dialog = AlertDialog.Builder(context)
@@ -266,5 +269,10 @@ object Env {
             onPostResult(null, VMEditActivity.Result.CANCELED)
         })
         dialog.show()
+    }
+
+    fun QEMU(cmd: String): Single<Cmd.Result>{
+        val session = RxCmdShell.builder().root(false).build().open().blockingGet()
+        return session.submit(Cmd.builder("cd ${APQDir.path}/bin && ./$cmd").build())
     }
 }

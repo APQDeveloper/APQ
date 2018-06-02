@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+    <header
+        android:fragment="com.apq.plus.Activity.SettingsActivity$GeneralPreferenceFragment"
+        android:icon="@drawable/ic_error_black"
+        android:title="@string/base_settings_general"/>
+    <header
+        android:fragment="com.apq.plus.Activity.SettingsActivity$VMPreferenceFragment"
+        android:icon="@drawable/ic_developer_board_black"
+        android:title="@string/base_title_vm"/>
+    <header
+        android:fragment="com.apq.plus.Activity.SettingsActivity$QEMUPreferenceFragment"
+        android:icon="@drawable/ic_qemu_black"
+        android:title="@string/base_title_qemu"/>
+</preference-headers>

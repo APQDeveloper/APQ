@@ -3,7 +3,6 @@
     <string name="app_name">APQ 模拟器</string>
     <string name="navigation_drawer_open">打开侧滑拦</string>
     <string name="navigation_drawer_close">关闭侧滑拦</string>
-    <string name="action_settings">设置</string>
     <string name="user_permissions_requested">你需要给予应用权限</string>
     <string name="base_ok">好的</string>
     <string name="base_choose">选择</string>
@@ -107,5 +106,21 @@
     <string name="base_display">显示</string>
     <string name="user_display_method">显示方式</string>
     <string name="base_choose_display">选择其中一项</string>
-
+    <string name="base_action_settings">设置</string>
+    <string name="base_settings_general">通用</string>
+    <string name="base_title_vm">虚拟机</string>
+    <string name="user_language">语言</string>
+    <string name="base_default">默认</string>
+    <string name="pref_restart_apply">重启应用以生效</string>
+    <string name="pref_reinstall">重新安装QEMU</string>
+    <string name="base_qemu_version">QEMU版本</string>
+    <string name="base_operations">操作</string>
+    <string name="user_reinstall">重新安装</string>
+    <string name="base_msg_unkonwn">未知</string>
+    <string name="base_msg_system_aarch">系统架构:%s</string>
+    <string name="base_msg_deleting">正在删除%s</string>
+    <string name="base_msg_failed">失败</string>
+    <string name="base_enable_no_root_mode">启用NOROOT模式</string>
+    <string name="base_msg_noroot">此特性可能导致一些问题，举例而言，你的虚拟机进程可能在后台被系统杀死。</string>
+    <string name="user_warn">警告</string>
 </resources>

@@ -12,6 +12,11 @@ import java.io.File
 
 class VMObject(var baseInfo: VMCompat.BaseInfo) {
     var session: RxCmdShell.Session? = null
+    var root: Boolean = false
+    fun useRoot(b: Boolean): VMObject{
+        root = b
+        return this
+    }
 
     private var mExceptionListener: ((e: Exception) -> Unit)? = null
     fun setExceptionListener(l: (e: Exception) -> Unit){
@@ -104,7 +109,7 @@ class VMObject(var baseInfo: VMCompat.BaseInfo) {
         //Log.i("VirtualMachineStopJob",if(result?.exitCode == 0) result.output.toString() else result?.errors?.toString())
     }
 
-    private fun buildSession() = RxCmdShell.builder().root(true).open().blockingGet()
+    private fun buildSession() = RxCmdShell.builder().root(root).open().blockingGet()
 
     override fun equals(other: Any?): Boolean {
         return other is VMObject && (other.baseInfo == baseInfo && other.isRunning == isRunning)

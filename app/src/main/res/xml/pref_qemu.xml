@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/base_qemu_version">
+        <Preference
+            android:title="@string/base_calcuating"
+            android:key="qemu_version"
+            android:enabled="false" />
+        <Preference
+            android:title="@string/base_calcuating"
+            android:key="qemu_aarch"
+            android:enabled="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/base_operations">
+        <Preference
+            android:title="@string/user_reinstall"
+            android:key="qemu_reinstall"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

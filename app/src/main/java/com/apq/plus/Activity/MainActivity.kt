@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.preference.PreferenceManager
 import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.support.design.widget.NavigationView
@@ -23,6 +24,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.LinearLayout
 import com.apq.plus.Adapter.VMAdapter
+import com.apq.plus.Base.BaseActivity
 import com.apq.plus.Env
 
 import com.apq.plus.R
@@ -33,20 +35,24 @@ import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.gson.JsonSyntaxException
 import jp.wasabeef.recyclerview.animators.FadeInAnimator
+import java.util.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var recyclerView: RecyclerView
     lateinit var fab: FloatingActionButton
     private var mainAdapter: VMAdapter? = null
-    private var VMList = ArrayList<VMObject>()
+    var VMList = ArrayList<VMObject>()
     private var detailedBottomSheetDialog: DetailedBottomSheetDialog? = null
+    private var norootMode: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+        supportActionBar!!.setTitle(R.string.app_name)
+
         recyclerView = findViewById(R.id.main_recycler_view)
         recyclerView.itemAnimator = FadeInAnimator()
         fab = findViewById(R.id.fab)
@@ -150,6 +156,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun refreshProfileData(){
+        val prefReader = PreferenceManager.getDefaultSharedPreferences(this)
+        norootMode = prefReader.getBoolean("noroot_mode",false)
+
         val old = ArrayList(VMList)
         VMList.clear()
         Env.VMProfileDir.listFiles()?.forEach {
@@ -157,13 +166,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 try {
                     VMList.add(
                             VMObject(
-                                    VMCompat.getBaseInfo(it.readText(),it)))
+                                    VMCompat.getBaseInfo(it.readText(),it))
+                                    .useRoot(!norootMode))
                 }catch (e: JsonSyntaxException){
                     e.printStackTrace()
                     Env.makeErrorDialog(this,e.toString())
                 }
             }
         }
+
+        VMList.sortBy { it.baseInfo.id }
 
         if (mainAdapter == null)
             mainAdapter = VMAdapter(VMList)
@@ -220,12 +232,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (!it.baseInfo.isNull && it.baseInfo.id > max)
                 max = it.baseInfo.id
         }
-        for (i in 0 .. max){
-            if (tmp.any { !it.baseInfo.isNull && it.baseInfo.id != i }){
-                return i
+        for (i in 1 .. max){
+            if (tmp.any { !it.baseInfo.isNull && it.baseInfo.id == i }){
+                continue
             }
+            else return i
         }
-        return if (max == 0) max else max +1
+        return max +1
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -233,6 +246,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             refreshProfileData()
             if (detailedBottomSheetDialog != null && !detailedBottomSheetDialog!!.isNullOrRecycled)
                 detailedBottomSheetDialog!!.dismiss()
+        }
+        else if (requestCode == 1){
+            if (data != null && data.getBooleanExtra("needsViewReloading",false)){
+                refreshProfileData()
+            }
         }
     }
 
@@ -257,8 +275,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // as you specify a parent activity in AndroidManifest.xml.
         val id = item.itemId
 
-
         return if (id == R.id.action_settings) {
+            startActivityForResult(Intent(this,SettingsActivity::class.java).putExtra("isAnyVMRunning",VMList.any { it.isRunning }),1)
             true
         } else super.onOptionsItemSelected(item)
 

@@ -4,7 +4,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="base_action_settings">Settings</string>
 
     <string name="user_permissions_requested">You need to grant the application some permissions.</string>
     <string name="base_ok">OK</string>
@@ -114,4 +114,23 @@
     <string name="base_display_vnc" translatable="false">VNC</string>
     <string name="base_display_xsdl" translatable="false">X SDL</string>
     <string name="base_choose_display">Choose one of these methods</string>
+
+    <!-- Strings related to Settings -->
+    <string name="base_settings_general">General</string>
+    <string name="base_title_vm">Virtual Machines</string>
+    <string name="base_title_qemu" translatable="false">QEMU</string>
+    <string name="user_language">Language</string>
+    <string name="base_default">Default</string>
+    <string name="pref_restart_apply">Restart Application to Apply</string>
+    <string name="pref_reinstall">Reinstall QEMU</string>
+    <string name="base_qemu_version">QEMU Version</string>
+    <string name="base_operations">Operations</string>
+    <string name="user_reinstall">Reinstall</string>
+    <string name="base_msg_unkonwn">Unknown</string>
+    <string name="base_msg_system_aarch">System aarch: %s</string>
+    <string name="base_msg_deleting">Deleting %s</string>
+    <string name="base_msg_failed">Failed</string>
+    <string name="base_enable_no_root_mode">Enable NOROOT mode</string>
+    <string name="base_msg_noroot">This feature may cause many problems. Your VM process may be killed by system in background for example.</string>
+    <string name="user_warn">Warn</string>
 </resources>

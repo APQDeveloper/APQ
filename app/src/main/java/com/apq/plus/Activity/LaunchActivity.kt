@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.*
+import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.AppCompatImageView
@@ -39,7 +40,22 @@ class LaunchActivity : BaseActivity() {
         loadingMsg = findViewById(R.id.progress_msg)
         loading.visibility = View.INVISIBLE
 
+        supportActionBar?.setTitle(R.string.app_name)
+
+        testPreference()
         request()
+    }
+
+    private fun testPreference(){
+        val dp = PreferenceManager.getDefaultSharedPreferences(this)
+        if (!dp.getBoolean("firstBoot",true)){
+            return
+        }
+        val editor = dp.edit()
+        editor.putBoolean("firstBoot",false)
+        editor.putBoolean("noroot_mode",false)
+        editor.putString("lang","default")
+        editor.apply()
     }
 
     lateinit var file : File
@@ -48,8 +64,6 @@ class LaunchActivity : BaseActivity() {
         if (framework == null || (!framework.contains("arm") && framework != "aarch64")){
             throw Exception("Unsupported system framework: $framework!")
         }
-        Env.APQDir = File("${filesDir.path}/${if (framework.contains("arm")) "qemu32" else "qemu64"}")
-        Env.VMProfileDir = File("$filesDir/VMProfile")
         if (Env.APQDir.exists() && proofreadAPQ()){
             iconView.visibility = View.VISIBLE
             Handler().postDelayed({
