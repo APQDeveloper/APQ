@@ -6,4 +6,9 @@
         android:entryValues="@array/lang_code"
         android:dialogTitle="@string/user_language"
         android:key="lang"/>
+    <PreferenceCategory android:title="@string/base_appearance">
+        <SwitchPreference
+            android:title="@string/base_night_mode"
+            android:key="night_mode" />
+    </PreferenceCategory>
 </PreferenceScreen>

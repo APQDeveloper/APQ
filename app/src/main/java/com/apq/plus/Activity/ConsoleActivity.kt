@@ -16,7 +16,7 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
 
-class ConsoleActivity : BaseActivity() {
+class ConsoleActivity : BaseActivity(R.layout.activity_console) {
 
     private var port: Int = 4444
     lateinit var content: TextView
@@ -27,7 +27,6 @@ class ConsoleActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_console)
         initToolbar()
         port = intent.getIntExtra("port",4444)
         content = findViewById(R.id.content)

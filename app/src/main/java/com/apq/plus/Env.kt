@@ -8,9 +8,12 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Environment
 import android.os.StatFs
 import android.os.StrictMode
+import android.support.annotation.IntegerRes
+import android.support.v4.content.ContextCompat
 import android.text.format.Formatter
 import android.util.DisplayMetrics
 import android.util.Log
@@ -27,6 +30,8 @@ import com.apq.plus.Utils.VMProfile.Units.*
 import com.xw.repo.BubbleSeekBar
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
+import eu.darken.rxshell.root.Root
+import eu.darken.rxshell.shell.RxShell
 import io.reactivex.Single
 import java.io.File
 import java.math.BigDecimal
@@ -44,13 +49,14 @@ object Env {
     fun getScreenSize(metrics: DisplayMetrics){
         screenWidth = metrics.widthPixels
         screenHeight = metrics.heightPixels
-        Log.i("Screen","With = $screenWidth, Height = $screenHeight")
     }
     //虚拟机
     val APQDir: File
     get() = File("${Environment.getDataDirectory()}/data/com.apq.plus/files/${if (systemFramework!!.contains("arm")) "qemu32" else "qemu64"}")
     val VMProfileDir: File
     get() = File("${Environment.getDataDirectory()}/data/com.apq.plus/files/VMProfile")
+    val isRooted: Boolean
+    get() = Root.Builder().build().blockingGet().state == Root.State.ROOTED
 
     fun makeErrorDialog(context: Context,e: String,isSerious: Boolean = false){
         val dialog = AlertDialog.Builder(context)
@@ -274,5 +280,10 @@ object Env {
     fun QEMU(cmd: String): Single<Cmd.Result>{
         val session = RxCmdShell.builder().root(false).build().open().blockingGet()
         return session.submit(Cmd.builder("cd ${APQDir.path}/bin && ./$cmd").build())
+    }
+
+    fun getHexByColorID(context: Context,id: Int): String{
+        val color = ContextCompat.getColor(context, id)
+        return "#${JavaBase.toHexString(Color.alpha(color))}${JavaBase.toHexString(Color.red(color))}${JavaBase.toHexString(Color.green(color))}${JavaBase.toHexString(Color.blue(color))}"
     }
 }

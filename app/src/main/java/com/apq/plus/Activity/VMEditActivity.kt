@@ -8,10 +8,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.AppBarLayout
-import android.support.design.widget.BottomSheetDialog
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.TextInputEditText
+import android.support.design.widget.*
 import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -37,7 +34,7 @@ import jp.wasabeef.recyclerview.animators.FadeInUpAnimator
 import top.wefor.circularanim.CircularAnim
 import java.io.File
 
-class VMEditActivity : BaseActivity() {
+class VMEditActivity : BaseActivity(R.layout.activity_vmedit) {
 
     //Data & Result
     private fun emptyResult() = VMProfile("","", VMProfile.CPU(VMProfile.CPU.FRAMEWORK_X86, "base"),null, VMProfile.DiskHolder.emptyObject, VMProfile.BootFrom(VMProfile.DiskHolder.CD), VMProfile.Memory(64.toDouble(), VMProfile.Units.MB),null,true)
@@ -48,11 +45,22 @@ class VMEditActivity : BaseActivity() {
     private lateinit var diskRecyclerView: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_vmedit)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.setTitle(R.string.base_basic_info)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        if (true) {
+            val collapsingToolbar = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar)
+            if (!nightMode) {
+                contentViewGroup.setBackgroundColor(resources.getColor(R.color.colorPrimary))
+                collapsingToolbar.setBackgroundColor(resources.getColor(R.color.colorPrimary))
+            }
+            else{
+                collapsingToolbar.setBackgroundColor(resources.getColor(R.color.cardview_dark_background))
+            }
+        }
+
         showTapTargets(1)
         init()
     }

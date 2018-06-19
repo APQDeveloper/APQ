@@ -28,4 +28,8 @@ object ActivityCollector {
                 it.finish()
         }
     }
+
+    fun forEach(loop: (a: Activity)-> Unit){
+        activities.forEach { loop(it) }
+    }
 }

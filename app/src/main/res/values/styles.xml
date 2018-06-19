@@ -9,7 +9,7 @@
         <item name="cardElevation">@dimen/cardview_default_elevation</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">@color/transparent</item>

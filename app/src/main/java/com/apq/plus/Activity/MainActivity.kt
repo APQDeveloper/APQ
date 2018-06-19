@@ -1,6 +1,7 @@
 package com.apq.plus.Activity
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -13,11 +14,9 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.animation.AlphaAnimation
@@ -34,10 +33,12 @@ import com.apq.plus.VMObject
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.gson.JsonSyntaxException
+import eu.darken.rxshell.cmd.Cmd
 import jp.wasabeef.recyclerview.animators.FadeInAnimator
+import timber.log.Timber
 import java.util.*
 
-class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity(R.layout.activity_main), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var recyclerView: RecyclerView
     lateinit var fab: FloatingActionButton
@@ -48,14 +49,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.setTitle(R.string.app_name)
 
         recyclerView = findViewById(R.id.main_recycler_view)
         recyclerView.itemAnimator = FadeInAnimator()
-        fab = findViewById(R.id.fab)
+        fab = findViewById<FloatingActionButton>(R.id.fab)
 
         fun newEditor(){
             val intent = Intent(this,VMEditActivity::class.java)
@@ -79,15 +79,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
 
-        refreshProfileData()
+        refreshProfileData(false)
 
         val refresh : SwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
         refresh.setColorSchemeColors(resources.getColor(R.color.colorAccent))
         refresh.setOnRefreshListener {
             Thread({
                 Thread.sleep(300)
-                refreshProfileData()
-                refresh.isRefreshing = false
+                refreshProfileData(false)
+                runOnUiThread {
+                    refresh.isRefreshing = false
+                }
             }).start()
         }
 
@@ -97,7 +99,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 detailedBottomSheetDialog!!.show()
 
                 detailedBottomSheetDialog!!.setOnDismissedListener { isDataChanged ->
-                    if (isDataChanged) refreshProfileData()
+                    if (isDataChanged) refreshProfileData(false)
                     detailedBottomSheetDialog!!.recycle()
                 }
             }
@@ -108,29 +110,40 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                         Env.makeVMErrorDialog(this, listOf(it.toString()))
                     }
                 }
-                vm.run({
-                    runOnUiThread {
-                        Snackbar.make(fab,getString(R.string.base_vm_running_snackbar,if(vm.baseInfo.useVNC) getString(R.string.base_display_vnc) else getString(R.string.base_display_xsdl),"127.0.0.1:${vm.baseInfo.id}"),Snackbar.LENGTH_LONG).show()
-                        onDone.invoke()
-                    }
-                },{r,e ->
-                    runOnUiThread{
-                        onDone.invoke()
-                        if (r != null && (r.exitCode != 0 || r.errors.size>0)){
-                            Env.makeVMErrorDialog(this,r.errors)
-                        }
-                    }
-                })
+                vm.run(
+                        root = !norootMode,
+                        onStarted =  {
+                            runOnUiThread {
+                                Snackbar.make(fab, getString(R.string.base_vm_running_snackbar, if (vm.baseInfo.useVNC) getString(R.string.base_display_vnc) else getString(R.string.base_display_xsdl), "127.0.0.1:${vm.baseInfo.videoPort}"), Snackbar.LENGTH_LONG).show()
+                                onDone.invoke()
+                            }
+                        },
+                        onDone = { r: Cmd.Result? ->
+                            runOnUiThread {
+                                onDone.invoke()
+                                if (r != null && (r.exitCode != 0 || r.errors.size > 0)) {
+                                    if (r.errors.indexOf("Permission denied") != -1){
+                                        val dialog = AlertDialog.Builder(this)
+                                        dialog.setTitle(R.string.base_vm_error_title)
+                                        dialog.setMessage(R.string.base_msg_not_rooted)
+                                        dialog.setPositiveButton(R.string.base_enable_no_root_mode,{ _,_->
+                                            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("noroot_mode",true).apply()
+                                            //norootMode = true
+                                            refreshProfileData(true)
+                                        })
+                                        dialog.setNegativeButton(R.string.base_cancel,null)
+                                        dialog.show()
+                                    }
+                                    else {
+                                        Env.makeVMErrorDialog(this, r.errors)
+                                    }
+                                }
+                            }
+                        })
             }
-            mainAdapter!!.setStopListener {vm,onDone ->
-                vm.stop({r ->
-                    Log.i("VirtualMachineStopJob","Stopping ${vm.baseInfo.name}: ${if (r == null) "Done" else "Failed"}.")
-                    if (r != null){
-                        Env.makeErrorDialog(this,r.toString())
-                    }
-                    runOnUiThread {
-                        onDone.invoke()
-                    }
+            mainAdapter!!.setStopListener { vm,onDone ->
+                vm.stop({
+                    onDone.invoke()
                 })
             }
         }
@@ -155,7 +168,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun refreshProfileData(){
+    private fun refreshProfileData(forcedLoad: Boolean){
         val prefReader = PreferenceManager.getDefaultSharedPreferences(this)
         norootMode = prefReader.getBoolean("noroot_mode",false)
 
@@ -164,10 +177,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         Env.VMProfileDir.listFiles()?.forEach {
             if (it.isFile && it.canRead()){
                 try {
-                    VMList.add(
-                            VMObject(
-                                    VMCompat.getBaseInfo(it.readText(),it))
-                                    .useRoot(!norootMode))
+                    VMList.add(VMObject(it))
                 }catch (e: JsonSyntaxException){
                     e.printStackTrace()
                     Env.makeErrorDialog(this,e.toString())
@@ -185,10 +195,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 recyclerView.adapter = mainAdapter
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
-            else{
+            else if (!forcedLoad){
                 Differ.update({
                     mainAdapter!!.mList = VMList
                 }, old,VMList, mainAdapter!!)
+            }
+            else {
+                mainAdapter!!.mList = VMList
+                mainAdapter!!.notifyDataSetChanged()
             }
             //额外一张标示“没有虚拟机”的卡片
             val card: LinearLayout = findViewById(R.id.noVM)
@@ -243,13 +257,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 0 && resultCode == Activity.RESULT_OK){
-            refreshProfileData()
+            refreshProfileData(true)
             if (detailedBottomSheetDialog != null && !detailedBottomSheetDialog!!.isNullOrRecycled)
                 detailedBottomSheetDialog!!.dismiss()
         }
         else if (requestCode == 1){
             if (data != null && data.getBooleanExtra("needsViewReloading",false)){
-                refreshProfileData()
+                refreshProfileData(true)
             }
         }
     }

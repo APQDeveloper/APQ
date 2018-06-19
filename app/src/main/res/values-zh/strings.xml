@@ -123,4 +123,9 @@
     <string name="base_enable_no_root_mode">启用NOROOT模式</string>
     <string name="base_msg_noroot">此特性可能导致一些问题，举例而言，你的虚拟机进程可能在后台被系统杀死。</string>
     <string name="user_warn">警告</string>
+    <string name="base_msg_not_rooted">你的设备没有root权限，但你可以使用NOROOT模式，然而它并不稳定。</string>
+    <string name="base_msg_crashed">应用程序出错！淦！</string>
+    <string name="base_detailed_info">详细信息</string>
+    <string name="base_night_mode">夜间模式</string>
+    <string name="base_appearance">外观</string>
 </resources>

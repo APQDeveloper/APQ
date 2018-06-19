@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.support.design.widget.BottomSheetDialog
-import android.support.design.widget.CollapsingToolbarLayout
-import android.support.v7.view.menu.MenuBuilder
 import android.support.v7.widget.ActionMenuView
 import android.support.v7.widget.AppCompatImageView
 import android.util.Log
@@ -15,9 +13,9 @@ import android.support.v7.widget.Toolbar
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import com.apq.plus.Env
 import com.apq.plus.R
 import com.apq.plus.VMObject
+import timber.log.Timber
 import java.io.File
 
 class DetailedBottomSheetDialog(val context: Context,val vm: VMObject) {
@@ -107,7 +105,7 @@ class DetailedBottomSheetDialog(val context: Context,val vm: VMObject) {
         (contentView!!.findViewById<AppCompatImageView>(R.id.edit)).setOnClickListener {
             val intent = Intent(context,VMEditActivity::class.java)
             intent.putExtra("dataToEdit", File(profile.file).readText())
-            Log.i("VM Editor","Start editor by json.")
+            Timber.tag("VM Editor").i("Start editor by json.")
             (context as Activity).startActivityForResult(intent,0)
         }
 

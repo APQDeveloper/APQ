@@ -30,7 +30,7 @@ import com.apq.plus.Utils.mDivisionDecoration
 import jp.wasabeef.recyclerview.animators.FadeInAnimator
 import java.io.File
 
-class FileChooserActivity : BaseActivity(),((File?, FileAdapter.States) -> Unit) {
+class FileChooserActivity : BaseActivity(R.layout.activity_file_chooser),((File?, FileAdapter.States) -> Unit) {
     override fun invoke(f: File?, states: FileAdapter.States) {
         if (states == FileAdapter.States.SELECTED){
             fab.show()
@@ -46,7 +46,6 @@ class FileChooserActivity : BaseActivity(),((File?, FileAdapter.States) -> Unit)
     var adapter: FileAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_file_chooser)
         recyclerView = findViewById(R.id.recycler_view)
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
         fab = findViewById(R.id.fab)

@@ -144,6 +144,10 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
         override fun equals(other: Any?): Boolean {
             return other is DiskHolder && (other.mList == mList)
         }
+
+        override fun hashCode(): Int {
+            return mList.hashCode()
+        }
     }
 
     class HardwareHolder{
@@ -291,6 +295,8 @@ class VMProfile(var name: String, var description: String,var cpu: CPU, var icon
 
     val monitorPort: Int
     get() = id + 4444
+    val videoPort: Int
+    get() = if (useVnc) id else 0
     fun getParams(): String{
         val params = ArrayList<String>()
         params.add("qemu-system-${cpu.framework}")

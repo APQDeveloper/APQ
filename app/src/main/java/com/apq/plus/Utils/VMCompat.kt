@@ -19,7 +19,7 @@ object VMCompat {
         val gson = Gson()
         return try {
             gson.fromJson(profile, VMProfile::class.java)
-        }catch (e: JsonSyntaxException){
+        }catch (e: Exception){
             e.printStackTrace()
             null
         }
@@ -35,8 +35,8 @@ object VMCompat {
         }
     }
 
-    fun getBaseInfo(json: String,file: File): BaseInfo{
-        val result: BaseInfo? = getBaseInfo(json)
+    fun getBaseInfo(file: File): BaseInfo{
+        val result: BaseInfo? = getBaseInfo(file.readText())
         if (result != null){
             result.file = file.path
             return result
@@ -58,7 +58,7 @@ object VMCompat {
         val useVNC: Boolean
         get() = try {
             JSONObject(File(file).readText())["useVnc"].toString().toBoolean()
-        }catch (e: Exception){
+        }catch (e: Throwable){
             e.printStackTrace()
             false
         }
@@ -84,6 +84,9 @@ object VMCompat {
 
         val monitorPort: Int
         get() = if (isNull) -1 else id + 4444
+
+        val videoPort: Int
+        get() = if (isNull) -1 else if (useVNC) id else 0
 
         override fun equals(other: Any?): Boolean {
             return other is BaseInfo && (other.id==id && other.name == name)

@@ -9,15 +9,15 @@ import android.os.Build
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceFragment
+import android.preference.PreferenceManager
 import android.preference.SwitchPreference
-import android.support.design.widget.Snackbar
-import android.view.View
 import com.apq.plus.AppCompatPreferenceActivity
 import com.apq.plus.Base.mContextWrapper
 import com.apq.plus.Env
 import com.apq.plus.R
 import com.apq.plus.Utils.ActivityCollector
 import eu.darken.rxshell.cmd.Cmd
+import java.util.concurrent.TimeUnit
 
 class SettingsActivity : AppCompatPreferenceActivity() {
     private companion object {
@@ -30,6 +30,11 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         setupActionBar()
         ActivityCollector.add(this)
         isAnyVMRunning = intent.getBooleanExtra("isAnyVMRunning",false)
+        listView.setBackgroundColor(
+                resources.getColor(
+                        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("night_mode",false))
+                            R.color.cardview_dark_background
+                        else android.R.color.white))
     }
 
     override fun onDestroy() {
@@ -82,19 +87,27 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_general)
+
             val language = findPreference("lang")
             language.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { pref, _ ->
                 if (pref.key == "lang"){
                     val dialog = AlertDialog.Builder(mContext)
                     dialog.setTitle(R.string.user_language)
                     dialog.setMessage(R.string.pref_restart_apply)
-                    dialog.setPositiveButton(R.string.base_ok,{ _: DialogInterface, _: Int ->
+                    dialog.setPositiveButton(R.string.base_ok) { _: DialogInterface, _: Int ->
                         ActivityCollector.finishAll()
                         startActivity(Intent(mContext,LaunchActivity::class.java))
-                    })
+                    }
                     dialog.setNegativeButton(R.string.base_cancel,null)
                     dialog.show()
                 }
+                true
+            }
+
+            val nightMode = findPreference("night_mode")
+            nightMode.setOnPreferenceClickListener {
+                ActivityCollector.forEach { it.recreate() }
+                activity.onBackPressed()
                 true
             }
         }
@@ -137,9 +150,10 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_qemu)
+
             val version = findPreference("qemu_version")
             version.isEnabled = false
-            Env.QEMU("qemu-system-i386 --version").subscribe { t: Cmd.Result? ->
+            Env.QEMU("qemu-system-i386 --version").timeout(5,TimeUnit.SECONDS).subscribe { t: Cmd.Result? ->
                 if (t?.exitCode == 0) {
                     val verBuilder = StringBuilder()
                     t.output?.forEach {
@@ -156,7 +170,10 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                     }
                 }
                 else {
-                    version.setTitle(R.string.base_msg_unkonwn)
+                    (mContext as Activity).runOnUiThread {
+                        version.setTitle(R.string.base_msg_unkonwn)
+                        version.title = "${version.title} \n${t?.errors.toString()}"
+                    }
                 }
             }
 
@@ -173,7 +190,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 dialog.setCancelable(false)
                 val dialogWindow = dialog.create()
                 dialogWindow.show()
-                Thread({
+                Thread {
                     if(!Env.APQDir.deleteRecursively()) {
                         (mContext as Activity).runOnUiThread {
                             dialogWindow.dismiss()
@@ -182,12 +199,11 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                             dialog.show()
                             reinstall.isEnabled = true
                         }
-                    }
-                    else {
+                    } else {
                         ActivityCollector.finishAll()
                         startActivity(Intent(mContext, LaunchActivity::class.java))
                     }
-                }).start()
+                }.start()
 
                 true
             }

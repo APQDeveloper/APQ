@@ -21,19 +21,19 @@ import com.apq.plus.Utils.FileUtils
 import com.apq.plus.Utils.ZipUtils
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
+import timber.log.Timber
 import java.io.File
 import java.math.BigDecimal
 
 val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-class LaunchActivity : BaseActivity() {
+class LaunchActivity : BaseActivity(R.layout.activity_launch) {
 
     lateinit var iconView : AppCompatImageView
     lateinit var loading: LinearLayout
     lateinit var loadingMsg: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_launch)
         iconView = findViewById(R.id.icon)
         iconView.visibility = View.INVISIBLE
         loading = findViewById(R.id.loading_layout)
@@ -132,16 +132,14 @@ class LaunchActivity : BaseActivity() {
                 val percent = it.data.getInt(ZipUtils.CompressStatus.Progress)
 
                 loadingMsg.text = getString(R.string.progress_msg_deploy,percent.toString())
-
-                Log.i("Progress",percent.toString())
             }
             ZipUtils.CompressStatus.DONE -> {
                 file.delete()
                 loadingMsg.setText(R.string.progress_msg_clean)
 
                 loadingMsg.setText(R.string.progress_msg_proofread)
-                Thread({
-                    Cmd.builder("chmod -R +x ${Env.APQDir}").execute(RxCmdShell.builder().build())
+                Thread {
+                    Cmd.builder("chmod -R +rwx ${Env.APQDir}").execute(RxCmdShell.builder().build())
                     if (proofreadAPQ()) {
                         runOnUiThread{
                             loadingMsg.setText(R.string.progress_msg_done)
@@ -154,13 +152,12 @@ class LaunchActivity : BaseActivity() {
                             finish()
                         },500)
                         Looper.loop()
-                    }
-                    else {
+                    } else {
                         Looper.prepare()
                         Env.makeErrorDialog(this@LaunchActivity,getString(R.string.base_proofread_failed),true)
                         Looper.loop()
                     }
-                }).start()
+                }.start()
             }
             ZipUtils.CompressStatus.ERROR -> {
                 val e = it.data.getString(ZipUtils.CompressStatus.Error)

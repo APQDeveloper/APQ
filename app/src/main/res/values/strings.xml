@@ -133,4 +133,9 @@
     <string name="base_enable_no_root_mode">Enable NOROOT mode</string>
     <string name="base_msg_noroot">This feature may cause many problems. Your VM process may be killed by system in background for example.</string>
     <string name="user_warn">Warn</string>
+    <string name="base_msg_not_rooted">Your device doesn\'t have root premissions. However, you can use noroot mode which is not stable.</string>
+    <string name="base_msg_crashed">Ooops! Application has crashed.</string>
+    <string name="base_detailed_info">Detailed Info</string>
+    <string name="base_night_mode">Night Mode</string>
+    <string name="base_appearance">Appearance</string>
 </resources>
